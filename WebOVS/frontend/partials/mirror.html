@@ -1,0 +1,121 @@
+<div ng-controller="MirrorCtrl">
+  <h4>The following mirrors are configured on this bridge:</h4>
+  <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+  <div class="alert alert-warning" ng-show="commonMethods.emptyList(mirrors)">
+    <p>There isn't any Mirrors configured.</p>
+  </div>
+  <div ng-hide="commonMethods.emptyList(mirrors)" class="table-responsive">
+    <table class="table">
+      <tr>
+        <th>Name</th>
+        <th>Ingress Ports</th>
+        <th>Egress Ports</th>
+        <th>Output Port</th>
+        <th colspan="3">Operations</th>
+      </tr>
+      <tr ng-repeat="mirror in mirrors | orderBy:'+name'">
+        <td>{{mirror.name}}</td>
+        <td>{{commonMethods.shortNames(mirror.select_src_port)}}</td>
+        <td>{{commonMethods.shortNames(mirror.select_dst_port)}}</td>
+        <td>{{mirror.output_port.split("/")[2]}}</td>
+        <td style="min-width:120px">
+          [ <a data-toggle="modal" href="#{{mirror.name}}" ng-click="editing = edit(mirror); editHier = ['Configuration', br.name, 'Mirrors', editing.name, 'Editing']">Edit</a>
+          | <confirm-before-removal class="" ref="#del-{{mirror.name}}"></confirm-before-removal> ]
+        </td>
+        <td>
+          <remove-item-window ref-id="del-{{mirror.name}}" callback="del_mirror(item)" item="mirror">
+            <p>Are you sure you want to delete this mirror?</p>
+          </remove-item-window>
+        </td>
+        <td>
+          <div class="modal fade" id="{{mirror.name}}" tabindex="-1" role="dialog" aria-labelledby="existingCtrlLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <!--<h4 class="modal-title">Mirror {{editing.name}}</h4>-->
+                </div>
+                <div class="modal-body">
+                  <breadcrumbs hierarchy="editHier"></breadcrumbs>
+                  <form role="form" name="mirrorform">
+                    <div class="form-group">
+                      <label>Name:</label>
+                      <input type="text" class="form-control" ng-model="editing.name" required>
+                      <p class="help-block">{{helpText.mirror.mirror_name}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label>Ingress Port:</label>
+                      <select class="form-control" multiple ng-multiple="true" ng-model="editing.select_src_port" ng-options="p.split('/')[2] for p in phyPorts | orderBy:portNum"></select>
+                      <p class="help-block">{{helpText.mirror.ingress_port}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label>Egress Port:</label>
+                      <select class="form-control" multiple ng-multiple="true" ng-model="editing.select_dst_port" ng-options="p.split('/')[2] for p in phyPorts | orderBy:portNum"></select>
+                      <p class="help-block">{{helpText.mirror.egress_port}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label>Output Port:</label>
+                      <select class="form-control" ng-model="editing.output_port" ng-options="p.split('/')[2] for p in phyPorts | orderBy:portNum"></select>
+                      <p class="help-block">{{helpText.mirror.output_port}}</p>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-disabled="mirrorform.$pristine || mirrorform.$dirty && mirrorform.$invalid" data-dismiss="modal" ng-click="update_mirror(editing)">Save changes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div> <!-- modal-footer -->
+              </div> <!-- modal-content -->
+            </div> <!-- modal-dialog -->
+          </div> <!-- modal -->
+        </td>
+      </tr>
+    </table>
+  </div>
+  <hr>
+  <div class="form-group">
+    <div>
+      <a class="btn btn-default" data-toggle="modal" href="#newmirror" ng-click="record = newMirror().init(); newHier = ['Configuration', br.name, 'Mirrors', 'New Mirror']">Add a new Mirror</a>
+    </div>
+  </div>
+
+  <!-- the pop-up window for adding a new Mirror -->
+  <div class="modal fade" id="newmirror" tabindex="-1" role="dialog" aria-labelledby="existingCtrlLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">New Mirror</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="newHier"></breadcrumbs>
+          <form role="form" name="newmirrorform">
+            <div class="form-group">
+              <label>Name:</label>
+              <input type="text" class="form-control" ng-model="record.name" required>
+              <p class="help-block">{{helpText.mirror.mirror_name}}</p>
+            </div>
+            <div class="form-group">
+              <label>Ingress Port:</label>
+              <select class="form-control" multiple ng-multiple="true" ng-model="record.select_src_port" ng-options="p.split('/')[2] for p in phyPorts | orderBy:portNum"></select>
+              <p class="help-block">{{helpText.mirror.ingress_port}}</p>
+            </div>
+            <div class="form-group">
+              <label>Egress Port:</label>
+              <select class="form-control" multiple ng-multiple="true" ng-model="record.select_dst_port" ng-options="p.split('/')[2] for p in phyPorts | orderBy:portNum"></select>
+              <p class="help-block">{{helpText.mirror.egress_port}}</p>
+            </div>
+            <div class="form-group">
+              <label>Output Port:</label>
+              <select class="form-control" ng-model="record.output_port" ng-options="p.split('/')[2] for p in phyPorts | orderBy:portNum"></select>
+              <p class="help-block">{{helpText.mirror.output_port}}</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" ng-disabled="newmirrorform.$pristine || newmirrorform.$dirty && newmirrorform.$invalid" data-dismiss="modal" ng-click="add_mirror(record)">Add</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div> <!-- modal-footer -->
+      </div> <!-- modal-content -->
+    </div> <!-- modal-dialog -->
+  </div> <!-- modal -->
+</div>

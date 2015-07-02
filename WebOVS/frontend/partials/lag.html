@@ -1,0 +1,278 @@
+<div div ng-controller="BondCtrl">
+  <h4>This bridge contains the following LAG(s).</h4>
+  <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+  <div class="alert alert-warning" ng-show="commonMethods.emptyList(data.bonds)">
+      <p>There isn't any link aggregation configured.</p>
+  </div>
+  <div class="panel-group" id="bondlist">
+    <div class="panel panel-default" ng-repeat="bond in data.bonds | orderBy:controlMethod.lagNum">
+      <div class="panel-heading">
+        <h5 class="panel-title">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#bondlist" href="#bond-{{bond.name}}">
+            <em>{{bond.name}}</em>
+          </a>
+        </h5>
+      </div>
+      <div id="bond-{{bond.name}}" class="panel-collapse collapse">
+        <div class="container">
+          <form class="form-horizontal" role="form">
+            <div class="form-group">
+              <label class="col-md-3 control-label">Type:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{bond.options.lag_type}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Members:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{commonMethods.shortNames(bond.options.members)}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">VLAN Mode:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{bond.vlan_config.vlan_mode}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Tag:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{bond.vlan_config.tag}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Trunks:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{commonMethods.displayVlanTrunks(bond.vlan_config.vlan_mode, bond.vlan_config.trunks)}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">OpenFlow Port Number:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{bond.ofport}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Link Speed:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{bond.options.link_speed}}</p>
+              </div>
+            </div>
+            <div ng-show="commonMethods.isLACP(bond.options.lag_type)">
+                <div class="form-group">
+                  <label class="col-md-3 control-label">System ID:</label>
+                  <div class="col-md-9">
+                  <p class="form-control-static">{{bond.options["lacp-system-id"]}}</p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label">System Priority:</label>
+                  <div class="col-md-9">
+                  <p class="form-control-static">{{bond.options["lacp-system-priority"]}}</p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label">LACP Time:</label>
+                  <div class="col-md-9">
+                  <p class="form-control-static">{{bond.options["lacp-time"]}}</p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-3 control-label">LACP Mode:</label>
+                  <div class="col-md-9">
+                  <p class="form-control-static">{{bond.options["lacp-mode"]}}</p>
+                  </div>
+                </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <div class="col-md-12">
+                <button type="button" class="btn btn-default" data-toggle="modal" href="#edit-{{bond.name}}" ng-click="editing = controlMethod.edit(bond); newmember = null; editHier = ['Configuration', br.name, 'Link Aggregation', editing.name, 'Editing']">Edit</button>
+                <confirm-before-removal class="btn btn-default" ref="#del-{{bond.name}}"></confirm-before-removal>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <remove-item-window ref-id="del-{{bond.name}}" callback="crud.del(item)" item="bond">
+        <p>Are you sure you want to delete this link aggregation?</p>
+      </remove-item-window>
+      <!-- the pop-up window for group editing -->
+      <div class="modal fade" id="edit-{{bond.name}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <!--<h4 class="modal-title">LAG</h4>-->
+            </div>
+            <div class="modal-body">
+              <breadcrumbs hierarchy="editHier"></breadcrumbs>
+              <form role="form" name="lagform">
+                <div class="form-group">
+                  <label class="control-label">Type:</label>
+                  <p class="form-control-static">{{editing.options.lag_type}}</p>
+                  <p class="help-block">{{helpText.bond.bond_type}}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Members:</label>
+                  <select class="form-control" multiple ng-multiple="true" ng-model="editing.options.members" ng-options="p.split('/')[2] for p in data.phyPorts | orderBy:controlMethod.portNum"></select>
+                  <p class="help-block">{{helpText.bond.bond_member}}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Link Speed:</label>
+                  <select class="form-control" ng-model="editing.options.link_speed" ng-options="s for s in data.options.speed">
+                  </select>
+                  <p class="help-block">{{helpText.bond.link_speed}}</p>
+                </div>
+                <div class="well">
+                  <div class="form-group">
+                    <label class="control-label">VLAN Mode:</label>
+                    <select class="form-control" ng-model="editing.vlan_config.vlan_mode" ng-options="t for t in data.options.vlanModes"></select>
+                    <p class="help-block">{{helpText.bond.bond_vlan_mode}}</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Tag:</label>
+                    <input class="form-control" type="number" ng-model="editing.vlan_config.tag" min="1" max="4094" required>
+                    <p class="help-block">{{helpText.bond.bond_vlan_tag}}</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Trunks:</label>
+                    <div class="input-group" ng-repeat="n in [] | range:editing.vlan_config.trunks.length">
+                      <input type="number" class="form-control" ng-model="editing.vlan_config.trunks[$index]" min="1" max="4094">
+                      <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="editing.vlan_config.trunks.splice($index, 1)">&minus;</button>
+                      </span>
+                    </div>
+                    <div class="input-group">
+                      <input type="number" class="form-control" ng-model="newmember" min="1" max="4094">
+                      <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="editing.vlan_config.trunks.push(newmember); newmember=null">+</button>
+                      </span>
+                    </div>
+                    <p class="help-block">{{helpText.bond.bond_vlan_trunks}}</p>
+                  </div>
+                </div>
+                <div ng-show="commonMethods.isLACP(editing.options.lag_type)">
+                  <div class="well">
+                    <div class="form-group">
+                      <label class="control-label">System ID:</label>
+                      <input class="form-control" type="text" mac-addr ng-model="editing.options['lacp-system-id']">
+                      <p class="help-block">{{helpText.bond.lacp_system_id}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">System Priority:</label>
+                      <input class="form-control" type="text" ng-model="editing.options['lacp-system-priority']">
+                      <p class="help-block">{{helpText.bond.lacp_system_priority}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">LACP Time:</label>
+                      <select class="form-control" ng-model="editing.options['lacp-time']" ng-options="t for t in data.options.lacpTime"></select>
+                      <p class="help-block">{{helpText.bond.lacp_time}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">LACP Mode:</label>
+                      <select class="form-control" ng-model="editing.options['lacp-mode']" ng-options="t for t in data.options.lacpModes"></select>
+                      <p class="help-block">{{helpText.bond.lacp_mode}}</p>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" ng-disabled="lagform.$dirty && lagform.$invalid || !commonMethods.isVlanConfigValid(editing)" data-dismiss="modal" ng-click="crud.update(editing)">Save changes</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- panel -->
+  </div> <!-- panel-group -->
+  <hr>
+  <a class="btn btn-default" data-toggle="modal" href="#newbond" ng-click="record = initializer.newBond().init(); newHier = ['Configration', br.name, 'Link Aggregation', 'New Bond']">Add a new LAG</a>
+  <div class="modal fade" id="newbond" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">New LAG</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="newHier"></breadcrumbs>
+          <form role="form" name="newlagform">
+            <div class="form-group">
+              <label>LAG Number:</label>
+              <select class="form-control" ng-model="record.name" ng-options="p.substr(2) for p in data.options.lags" required></select>
+              <p class="help-block">{{helpText.port.port_num}}</p>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Type:</label>
+              <select class="form-control" ng-model="record.options.lag_type" ng-options="t for t in data.options.lagTypes"></select>
+              <p class="help-block">{{helpText.bond.bond_type}}</p>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Members:</label>
+              <select class="form-control" multiple ng-multiple="true" ng-model="record.options.members" ng-options="p.split('/')[2] for p in data.phyPorts | orderBy:controlMethod.portNum"></select>
+              <p class="help-block">{{helpText.bond.bond_member}}</p>
+            </div>
+            <div class="well">
+              <div class="form-group">
+                <label class="control-label">VLAN Mode:</label>
+                <select class="form-control" ng-model="record.vlan_config.vlan_mode" ng-options="t for t in data.options.vlanModes"></select>
+                <p class="help-block">{{helpText.bond.bond_vlan_mode}}</p>
+              </div>
+              <div class="form-group">
+                <label class="control-label">Tag:</label>
+                <input class="form-control" type="number" ng-model="record.vlan_config.tag" min="1" max="4094" required>
+                <p class="help-block">{{helpText.bond.bond_vlan_tag}}</p>
+              </div>
+              <div class="form-group">
+                <label class="control-label">Trunks:</label>
+                <div class="input-group" ng-repeat="n in [] | range:record.vlan_config.trunks.length">
+                  <input type="number" class="form-control" ng-model="record.vlan_config.trunks[$index]" min="1" max="4094">
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="record.vlan_config.trunks.splice($index, 1)">&minus;</button>
+                  </span>
+                </div>
+                <div class="input-group">
+                  <input type="number" class="form-control" ng-model="newmember" min="1" max="4094">
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="record.vlan_config.trunks.push(newmember); newmember=null">+</button>
+                  </span>
+                </div>
+                <p class="help-block">{{helpText.bond.bond_vlan_trunks}}</p>
+              </div>
+            </div>
+            <div ng-show="commonMethods.isLACP(record.options.lag_type)">
+              <div class="well">
+                <div class="form-group">
+                  <label class="control-label">System ID:</label>
+                  <input class="form-control" type="text" mac-addr ng-model="record.options['lacp-system-id']">
+                  <p class="help-block">{{helpText.bond.lacp_system_id}}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">System Priority:</label>
+                  <input class="form-control" type="text" ng-model="record.options['lacp-system-priority']" required>
+                  <p class="help-block">{{helpText.bond.lacp_system_priority}}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">LACP Time:</label>
+                  <select class="form-control" ng-model="record.options['lacp-time']" ng-options="t for t in data.options.lacpTime"></select>
+                  <p class="help-block">{{helpText.bond.lacp_time}}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">LACP Mode:</label>
+                  <select class="form-control" ng-model="record.options['lacp-mode']" ng-options="t for t in data.options.lacpModes"></select>
+                  <p class="help-block">{{helpText.bond.lacp_mode}}</p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-disabled="newlagform.$pristine || newlagform.$dirty && newlagform.$invalid || !commonMethods.isVlanConfigValid(record)" data-dismiss="modal" ng-click="crud.create(record)">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

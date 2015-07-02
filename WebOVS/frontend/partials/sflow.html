@@ -1,0 +1,214 @@
+<div ng-controller="sFlowCtrl">
+  <h4>Configure sFlow on this bridge.</h4>
+  <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+  <div class="alert alert-warning" ng-show="commonMethods.emptyObj(sflow)">
+    <p>sFlow isn't configured.</p>
+  </div>
+  <form class="form-horizontal" role="form" ng-hide="commonMethods.emptyObj(sflow)">
+    <div class="form-group">
+      <label class="col-md-3 control-label">Polling:</label>
+      <div class="col-md-9">
+        <p class="form-control-static">{{sflow.polling}}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Header:</label>
+      <div class="col-md-9">
+        <p class="form-control-static">{{sflow.header}}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Agent:</label>
+      <div class="col-md-9">
+        <p class="form-control-static">{{sflow.agent}}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Sampling:</label>
+      <div class="col-md-9">
+        <p class="form-control-static">{{sflow.sampling}}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-3 control-label">Targets:</label>
+      <div class="col-md-9">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <tr>
+              <th>IP Address</th>
+              <th>Port</th>
+            </tr>
+            <tr ng-repeat="target in sflow.targets">
+              <td>{{target.ip}}</td>
+              <td>{{target.port}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </form>
+  <hr>
+  <a class="btn btn-default" data-toggle="modal" href="#editsflow" ng-click="editing = edit(sflow); newtarget={port:6343}; editHier = ['Configuration', br.name, 'sFlow', 'Editing']" ng-show="editOrAdd(sflow)">Edit</a>
+  <a class="btn btn-default" data-toggle="modal" href="#newsflow" ng-click="record = newsFlow().init(); extratarget={port:6343}; newHier = ['Configuration', br.name, 'sFlow', 'New sFlow']" ng-hide="editOrAdd(sflow)">Add</a>
+  <a class="btn btn-default" href="#delsflow" data-toggle="modal" ng-disabled="!editOrAdd(sflow)">Delete</a>
+
+  <div class="modal fade" id="delsflow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Confirmation</h4>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to clear sFlow configurations?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="del_sflow(sflow)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pop up window fow sflow editing -->
+  <div class="modal fade" id="editsflow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">sFlow settings</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="editHier"></breadcrumbs>
+          <form role="form-horizontal" name="sflowform">
+            <div class="form-group">
+              <label class="col-md-3">Polling:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="number" ng-model="editing.polling" required>
+                <p class="help-block">{{helpText.sflow.polling}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3">Header:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="number" ng-model="editing.header" required>
+                <p class="help-block">{{helpText.sflow.header}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3">Agent:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="text" ng-model="editing.agent" required>
+                <p class="help-block">{{helpText.sflow.agent}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3">Sampling:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="number" ng-model="editing.sampling" required>
+                <p class="help-block">{{helpText.sflow.sampling}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Targets</label>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <tr>
+                    <th>IP Address</th>
+                    <th>Port Number</th>
+                    <th></th>
+                  </tr>
+                  <tr ng-repeat="n in [] | range:editing.targets.length">
+                    <td><input type="text" ip-addr class="form-control" ng-model="editing.targets[$index].ip" required></td>
+                    <td><input type="number" class="form-control" ng-model="editing.targets[$index].port" required></td>
+                    <td><button type="button" class="btn btn-default" ng-click="editing.targets.splice($index, 1)">&minus;</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="text" ip-addr class="form-control" ng-model="newtarget.ip"></td>
+                    <td><input type="number" class="form-control" ng-model="newtarget.port"></td>
+                    <td><button type="button" class="btn btn-default" ng-click="editing.targets.push(newtarget); newtarget={port:6343}">+</button></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-disabled="sflowform.$pristine || sflowform.$dirty && sflowform.$invalid" data-dismiss="modal" ng-click="update_sflow(editing)">Save changes</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <!-- pop up window fow adding a new sflow -->
+  <div class="modal fade" id="newsflow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">New sFlow</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="newHier"></breadcrumbs>
+          <form role="form-horizontal" name="newsflowform">
+            <div class="form-group">
+              <label class="col-md-3">Polling:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="number" ng-model="record.polling" required>
+                <p class="help-block">{{helpText.sflow.polling}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3">Header:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="number" ng-model="record.header" required>
+                <p class="help-block">{{helpText.sflow.header}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3">Agent:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="text" ng-model="record.agent" required>
+                <p class="help-block">{{helpText.sflow.agent}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3">Sampling:</label>
+              <div class="col-md-9">
+                <input class="form-control" type="number" ng-model="record.sampling" required>
+                <p class="help-block">{{helpText.sflow.sampling}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Targets</label>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <tr>
+                    <th>IP Address</th>
+                    <th>Port Number</th>
+                    <th></th>
+                  </tr>
+                  <tr ng-repeat="n in [] | range:record.targets.length">
+                    <td><input type="text" ip-addr class="form-control" ng-model="record.targets[$index].ip" required></td>
+                    <td><input type="number" class="form-control" ng-model="record.targets[$index].port" required></td>
+                    <td><button type="button" class="btn btn-default" ng-click="record.targets.splice($index, 1)">&minus;</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="text" ip-addr class="form-control" ng-model="extratarget.ip"></td>
+                    <td><input type="number" class="form-control" ng-model="extratarget.port"></td>
+                    <td><button type="button" class="btn btn-default" ng-click="record.targets.push(extratarget); extratarget={port:6343}">+</button></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-disabled="newsflowform.$pristine || newsflowform.$dirty && newsflowform.$invalid" data-dismiss="modal" ng-click="add_sflow(record)">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</div>

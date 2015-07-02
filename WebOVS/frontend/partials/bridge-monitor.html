@@ -1,0 +1,566 @@
+<div ng-init="controlMethod.basicTab()">
+  <ul class="nav nav-pills nav-justified" id="topnav">
+    <li><a href="#basic"  data-toggle="pill">Basic</a></li>
+    <li><a href="#controller"  data-toggle="pill">Controller</a></li>
+    <li><a href="#port"  data-toggle="pill">Port</a></li>
+    <li><a href="#tunnel"  data-toggle="pill">Tunnel</a></li>
+    <li><a href="#lag"  data-toggle="pill">LAG</a></li>
+    <li><a href="#flow"  data-toggle="pill">Flow Table</a></li>
+    <li><a href="#group"  data-toggle="pill">Group Table</a></li>
+    <li><a href="#meter"  data-toggle="pill">Meter Table</a></li>
+    <li class="dropdown">
+      <a href=""  class="dropdown-toggle" data-toggle="dropdown">
+        Visibility
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="#mirror" data-toggle="pill">Mirror</a></li>
+        <li><a href="#netflow" data-toggle="pill">NetFlow</a></li>
+        <li><a href="#sflow" data-toggle="pill">sFlow</a></li>
+      </ul>
+    </li>
+  </ul>
+  <div class="pill-content">
+    <!-- basic -->
+    <div class="pill-pane fade" id="basic">
+      <br>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+            <tr>
+                <th>Name</th>
+                <th>Datapath ID</th>
+                <th>Fail Mode</th>
+                <th>OpenFlow Version</th>
+            </tr>
+            <tr>
+                <td>{{br.name}}</td>
+                <td>{{br.datapath_id}}</td>
+                <td>{{br.fail_mode}}</td>
+                <td>{{commonMethods.ofVersions(br.protocols)}}</td>
+            </tr>
+        </table>
+      </div>
+      <form class="form">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="$parent.autoRefresh">
+            Auto refresh every <select ng-disabled="$parent.autoRefresh" ng-init="$parent.refreshCycle = 5" ng-options="c for c in $parent.data.cycle" ng-model="$parent.refreshCycle"></select> seconds.
+          </label>
+        </div>
+        <a class="btn btn-default" href="" ng-click="refresh(br.name)" ng-disabled="$parent.autoRefresh">Manually Refresh</a>
+      </form>
+    </div>
+    <!-- controller -->
+    <div class="pill-pane fade" id="controller">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(br.controller)">
+          <p>There isn't any controller configured.</p>
+      </div>
+      <div ng-hide="commonMethods.emptyList(br.controller)" class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th>Target</th>
+            <th>Connection Mode</th>
+            <th>Connected?</th>
+            <th>Role</th>
+            <th>State</th>
+          </tr>
+          <tr ng-repeat="ctl in br.controller">
+            <td>{{ctrlTarget(ctl)}}</td>
+            <td>{{ctl.connection_mode}}</td>
+            <td>{{ctl.is_connected}}</td>
+            <td>{{ctl.role}}</td>
+            <td>{{ctl.status.state}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- port -->
+    <div class="pill-pane fade" id="port">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(br.ports)">
+          <p>There isn't any port on this bridge.</p>
+      </div>
+      <div class="panel panel-default table-responsive" ng-repeat="port in br.ports | orderBy:'+ofport' | filter:controlMethod.validOfPort">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+            <em>Port {{port.name.split("/")[2]}} ({{port.name}})</em>
+          </h5>
+        </div>
+        <table class="table table-bordered">
+          <tr>
+            <th rowspan="3" class="col-xs-4">OF State</th>
+            <th colspan="2" class="col-xs-4">OF Port Number</th>
+            <td colspan="2" class="col-xs-4">{{port.ofport}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Admin State</th>
+            <td colspan="2">{{port.admin_state}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Link State</th>
+            <td colspan="2">{{port.link_state}}</td>
+          </tr>
+          <tr>
+            <th rowspan="3">VLAN</th>
+            <th colspan="2">VLAN Mode</th>
+            <td colspan="2">{{port.vlan_config.vlan_mode}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Tag</th>
+            <td colspan="2">{{port.vlan_config.tag}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Trunks</th>
+            <td colspan="2">{{commonMethods.displayVlanTrunks(port.vlan_config.vlan_mode, port.vlan_config.trunks)}}</td>
+          </tr>
+          <tr>
+            <th rowspan="3">Others</th>
+            <th colspan="2">Link Speed</th>
+            <td colspan="2">{{controlMethod.actualLinkSpeed(port.link_state, port.link_speed)}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Flow Control</th>
+            <td colspan="2">{{port.options.flow_ctl}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">MTU</th>
+            <td colspan="2">{{port.mtu}}</td>
+          </tr>
+          <tr>
+            <th rowspan="8">Statistics</th>
+            <th colspan="2">RX Packets</th>
+            <td colspan="2">{{port.statistics.counters.rx_packets}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">RX Bytes</th>
+            <td colspan="2">{{port.statistics.counters.rx_bytes}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">RX Dropped</th>
+            <td colspan="2">{{port.statistics.receive_errors.rx_dropped}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">RX Errors</th>
+            <td colspan="2">{{port.statistics.receive_errors.rx_errors}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">TX Packets</th>
+            <td colspan="2">{{port.statistics.counters.tx_packets}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">TX Bytes</th>
+            <td colspan="2">{{port.statistics.counters.tx_bytes}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">TX Dropped</th>
+            <td colspan="2">{{port.statistics.transmit_errors.tx_dropped}}</td>
+          </tr>
+          <tr>
+            <th colspan="2">TX Errors</th>
+            <td colspan="2">{{port.statistics.transmit_errors.tx_errors}}</td>
+          </tr>
+          <tr ng-hide="commonMethods.defaultQueue(port.qos)">
+            <th rowspan="{{port.qos.queues.length+1}}" class="col-xs-4">Queues</th>
+            <th class="col-xs-2">Queue Index</th>
+            <th class="col-xs-2">Min Rate (bit/s)</th>
+            <th class="col-xs-2">Max Rate (bit/s)</th>
+            <th class="col-xs-2">Burst (bit/s)</th>
+          </tr>
+          <tr ng-repeat="queue in port.qos.queues">
+            <td>{{queue.queue_id}}</td>
+            <td>{{queue.min_rate}}</td>
+            <td>{{queue.max_rate}}</td>
+            <td>{{queue.burst}}</td>
+          </tr>
+        </table>
+      </div> <!-- panel -->
+    </div>
+    <!-- tunnel -->
+    <div class="pill-pane fade" id="tunnel">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(br.tunnels)">
+          <p>There isn't any tunnel configured.</p>
+      </div>
+      <div class="panel panel-default table-responsive" ng-repeat="tunnel in br.tunnels | orderBy:controlMethod.portNum(3)">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+            <em>{{tunnel.name}}</em>
+          </h5>
+        </div>
+        <table class="table table-bordered">
+          <tr>
+            <th rowspan="2" class="col-xs-4">IP</th>
+            <th class="col-xs-4">Remote IP Address:</th>
+            <td class="col-xs-4">{{tunnel.options.remote_ip}}</td>
+          </tr>
+          <tr>
+            <th>Local IP Address</th>
+            <td>{{tunnel.options.local_ip}}</td>
+          </tr>
+          <tr>
+            <th rowspan="2">MAC</th>
+            <th>Source MAC</th>
+            <td>{{tunnel.options.src_mac}}</td>
+          </tr>
+          <tr>
+            <th>Destination MAC</th>
+            <td>{{tunnel.options.dst_mac}}</td>
+          </tr>
+          <tr>
+            <th rowspan="5">Others</th>
+            <th>OF Port Number</th>
+            <td>{{tunnel.ofport}}</td>
+          </tr>
+          <tr>
+            <th>Egress Port Number</th>
+            <td>{{tunnel.options.egress_port.split('/')[2]}}</td>
+          </tr>
+          <tr>
+            <th>VLAN ID</th>
+            <td>{{tunnel.options.vlan}}</td>
+          </tr>
+          <tr>
+            <th>Admin State</th>
+            <td>{{tunnel.admin_state}}</td>
+          </tr>
+          <tr>
+            <th>Link State</th>
+            <td>{{tunnel.link_state}}</td>
+          </tr>
+          <tr>
+            <th rowspan="8">Statistics</th>
+            <th>RX Packets</th>
+            <td>{{tunnel.statistics.counters.rx_packets}}</td>
+          </tr>
+          <tr>
+            <th>RX Bytes</th>
+            <td>{{tunnel.statistics.counters.rx_bytes}}</td>
+          </tr>
+          <tr>
+            <th>RX Dropped</th>
+            <td>{{tunnel.statistics.receive_errors.rx_dropped}}</td>
+          </tr>
+          <tr>
+            <th>RX Errors</th>
+            <td>{{tunnel.statistics.receive_errors.rx_errors}}</td>
+          </tr>
+          <tr>
+            <th>TX Packets</th>
+            <td>{{tunnel.statistics.counters.tx_packets}}</td>
+          </tr>
+          <tr>
+            <th>TX Bytes</th>
+            <td>{{tunnel.statistics.counters.tx_bytes}}</td>
+          </tr>
+          <tr>
+            <th>TX Dropped</th>
+            <td>{{tunnel.statistics.transmit_errors.tx_dropped}}</td>
+          </tr>
+          <tr>
+            <th>TX Errors</th>
+            <td>{{tunnel.statistics.transmit_errors.tx_errors}}</td>
+          </tr>
+        </table>
+      </div> <!-- panel -->
+    </div>
+    <!-- link aggregation -->
+    <div class="pill-pane fade" id="lag">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(br.lags)">
+          <p>There isn't any link aggregation configured.</p>
+      </div>
+      <div class="panel panel-default table-responsive" ng-repeat="bond in br.lags | orderBy:controlMethod.portNum(2)">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+            <em>{{bond.name}}</em>
+          </h5>
+        </div>
+        <table class="table table-bordered">
+          <tr>
+            <th rowspan="3" class="col-xs-4">Link Aggregation Config</th>
+            <th class="col-xs-4">Type</th>
+            <td class="col-xs-4">{{bond.options.lag_type}}</td>
+          </tr>
+          <tr>
+            <th>Members</th>
+            <td>{{commonMethods.shortNames(bond.options.members)}}</td>
+          </tr>
+          <tr>
+            <th>OF Port Number</th>
+            <td>{{bond.ofport}}</td>
+          </tr>
+          <tr>
+            <th rowspan="3">VLAN</th>
+            <th>VLAN Mode</th>
+            <td>{{bond.vlan_config.vlan_mode}}</td>
+          </tr>
+          <tr>
+            <th>Tag</th>
+            <td>{{bond.vlan_config.tag}}</td>
+          </tr>
+          <tr>
+            <th>Trunks</th>
+            <td>{{commonMethods.displayVlanTrunks(bond.vlan_config.vlan_mode, bond.vlan_config.trunks)}}</td>
+          </tr>
+          <tr>
+              <th rowspan="3">Others</th>
+              <th>Link Speed</th>
+              <td>{{controlMethod.actualLinkSpeed(bond.link_state, bond.link_speed)}}</td>
+          </tr>
+          <tr>
+            <th>Admin State</th>
+            <td>{{bond.admin_state}}</td>
+          </tr>
+          <tr>
+            <th>Link State</th>
+            <td>{{bond.link_state}}</td>
+          </tr>
+          <tr>
+            <th rowspan="4">LACP Configuration (optional)</th>
+            <th>System ID</th>
+            <td>{{bond.options["lacp-system-id"]}}</td>
+          </tr>
+          <tr>
+            <th>System Priority</th>
+            <td>{{bond.options["lacp-system-priority"]}}</td>
+          </tr>
+          <tr>
+            <th>LACP Time</th>
+            <td>{{bond.options["lacp-time"]}}</td>
+          </tr>
+          <tr>
+            <th>LACP Mode</th>
+            <td>{{bond.options["lacp-mode"]}}</td>
+          </tr>
+          <tr>
+            <th rowspan="8">Statistics</th>
+            <th>RX Packets</th>
+            <td>{{bond.statistics.counters.rx_packets}}</td>
+          </tr>
+          <tr>
+            <th>RX Bytes</th>
+            <td>{{bond.statistics.counters.rx_bytes}}</td>
+          </tr>
+          <tr>
+            <th>RX Dropped</th>
+            <td>{{bond.statistics.receive_errors.rx_dropped}}</td>
+          </tr>
+          <tr>
+            <th>RX Errors</th>
+            <td>{{bond.statistics.receive_errors.rx_errors}}</td>
+          </tr>
+          <tr>
+            <th>TX Packets</th>
+            <td>{{bond.statistics.counters.tx_packets}}</td>
+          </tr>
+          <tr>
+            <th>TX Bytes</th>
+            <td>{{bond.statistics.counters.tx_bytes}}</td>
+          </tr>
+          <tr>
+            <th>TX Dropped</th>
+            <td>{{bond.statistics.transmit_errors.tx_dropped}}</td>
+          </tr>
+          <tr>
+            <th>TX Errors</th>
+            <td>{{bond.statistics.transmit_errors.tx_errors}}</td>
+          </tr>
+        </table>
+      </div> <!-- panel -->
+    </div>
+    <!-- flow -->
+    <div class="pill-pane fade" id="flow">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(tables)">
+          <p>There isn't any flows configured.</p>
+      </div>
+      <!--ng-repeat tables-->
+      <div class="panel panel-default table-responsive" ng-repeat="table in tables | orderBy:id | filter:noneEmpty">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+            <em>Table: <strong>{{table.id}}</strong></em>
+          </h5>
+        </div> <!-- panel heading -->
+        <table class="table table-bordered">
+          <tr>
+            <th>Priority</th><th>Cookie</th><th>Match Fields</th><th>Actions</th><th>Duration</th><th>Packets</th><th>Bytes</th>
+          </tr>
+          <tr ng-repeat="flow in table.flows | orderBy:'-priority'">
+            <td>{{flow.priority}}</td>
+            <td>{{flow.cookie}}</td>
+            <td><div style="word-break: break-all;">{{flow.match_fields | fields}}{{flow.send_flow_rem | flagSet}}</div></td>
+            <td><div style="word-break: break-all;">{{flow.actions}}</div></td>
+            <td>{{flow.duration}}</td>
+            <td>{{flow.counters.packets}}</td>
+            <td>{{flow.counters.bytes}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- group -->
+    <div class="pill-pane fade" id="group">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(groups)">
+          <p>There isn't any groups configured.</p>
+      </div>
+      <div class="panel panel-default table-responsive" ng-repeat="group in groups | orderBy:'+id'">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+            <em>Group: <strong>{{group.id}}</strong></em>
+          </h5>
+        </div>
+        <table class="table table-bordered">
+          <tr>
+            <th>Type</th>
+            <th>Buckets</th>
+            <th>Duration</th>
+            <th>Packets</th>
+            <th>Bytes</th>
+            <th>Reference Count</th>
+          </tr>
+          <tr>
+            <td>{{group.type}}</td>
+            <td>
+              <div style="word-break: break-all;">
+                <p ng-repeat="bucket in group.buckets" class="form-control-static">
+                bucket {{$index}}<br><span ng-show="controlMethod.isGroupTypeFastFailover(group)">watch_port={{bucket.watch_port}},watch_group={{bucket.watch_group}}<br></span>actions={{bucket.actions_list}}
+                </p>
+              </div>
+            </td>
+            <td>{{group.duration}}</td>
+            <td>{{group.counters.packets_count}}</td>
+            <td>{{group.counters.bytes_count}}</td>
+            <td>{{group.ref_count}}</td>
+          </tr>
+        </table>
+      </div> <!-- panel -->
+    </div>
+    <!-- meter -->
+    <div class="pill-pane fade" id="meter">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(meters)">
+          <p>There isn't any meters configured.</p>
+      </div>
+      <div class="panel panel-default table-responsive" ng-repeat="meter in meters | orderBy:'+id'">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+            <em>Meter: <strong>{{meter.id}}</strong></em>
+          </h5>
+        </div>
+        <table class="table table-bordered">
+          <tr>
+            <th>Type</th>
+            <th>Rate</th>
+            <th>Burst Size</th>
+            <th>Prec Level</th>
+            <th>Duration</th>
+            <th>Packets</th>
+            <th>Bytes</th>
+            <th>Flows</th>
+          </tr>
+          <tr ng-repeat="band in meter.bands">
+            <td>{{band.type}}</td>
+            <td>{{band.rate}}</td>
+            <td>{{band.burst}}</td>
+            <td>{{band.prec_level}}</td>
+            <!-- <td>{{commonMethods.printFlags(meter.flags)}}</td> -->
+            <td>{{meter.counters.duration}}</td>
+            <td>{{meter.counters.packet_count}}</td>
+            <td>{{meter.counters.byte_count}}</td>
+            <td>{{meter.counters.flow_count}}</td>
+          </tr>
+        </table>
+      </div> <!-- panel -->
+    </div>
+    <!-- sflow -->
+    <div class="pill-pane fade" id="sflow">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyObj(br.sFlow)">
+        <p>sFlow isn't configured.</p>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered" ng-hide="commonMethods.emptyObj(br.sFlow)">
+          <tr>
+            <th rowspan="4" class="col-xs-4">sFlow Configuration</th>
+            <th class="col-xs-4">Polling</th>
+            <td class="col-xs-4">{{br.sFlow.polling}}</td>
+          </tr>
+          <tr>
+            <th>Header</th>
+            <td>{{br.sFlow.header}}</td>
+          </tr>
+          <tr>
+            <th>Agent</th>
+            <td>{{br.sFlow.agent}}</td>
+          </tr>
+          <tr>
+            <th>Sampling</th>
+            <td>{{br.sFlow.sampling}}</td>
+          </tr>
+          <tr>
+            <th rowspan="{{br.sFlow.targets.length+1}}">Targets</th>
+            <th>IP Address</th>
+            <th>Port</th>
+          </tr>
+          <tr ng-repeat="target in br.sFlow.targets">
+            <td>{{target.ip}}</td>
+            <td>{{target.port}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- netflow -->
+    <div class="pill-pane fade" id="netflow">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyObj(br.NetFlow)">
+        <p>NetFlow isn't configured.</p>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered" ng-hide="commonMethods.emptyObj(br.NetFlow)">
+          <tr>
+            <th class="col-xs-4"></th>
+            <th class="col-xs-4">NetFlow Active Timeout</th>
+            <td class="col-xs-4">{{br.NetFlow.active_timeout}}</td>
+          </tr>
+          <tr>
+            <th rowspan="{{br.NetFlow.targets.length+1}}">Targets</th>
+            <th>IP Address</th>
+            <th>Port</th>
+          </tr>
+          <tr ng-repeat="target in br.NetFlow.targets">
+            <td>{{target.ip}}</td>
+            <td>{{target.port}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- mirror -->
+    <div class="pill-pane fade" id="mirror">
+      <br>
+      <div class="alert alert-warning" ng-show="commonMethods.emptyList(br.Mirrors)">
+        <p>There isn't any Mirrors configured.</p>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered" ng-hide="commonMethods.emptyList(br.Mirrors)">
+          <tr>
+            <th>Mirror Name</th>
+            <th>Ingress Ports</th>
+            <th>Egress Ports</th>
+            <th>Output Port</th>
+            <th>Packets</th>
+            <th>Bytes</th>
+          </tr>
+          <tr ng-repeat="mirror in br.Mirrors | orderBy:'+name'">
+            <td>{{mirror.name}}</td>
+            <td>{{commonMethods.shortNames(mirror.select_src_port)}}</td>
+            <td>{{commonMethods.shortNames(mirror.select_dst_port)}}</td>
+            <td>{{mirror.output_port.split("/")[2]}}</td>
+            <td>{{mirror.statistics.tx_packets}}</td>
+            <td>{{mirror.statistics.tx_bytes}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

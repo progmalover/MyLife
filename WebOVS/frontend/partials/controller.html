@@ -1,0 +1,126 @@
+<div ng-controller="ControllerCtrl">
+  <h4>The following controllers are configured for this bridge.</h4>
+  <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+  <div class="alert alert-warning" ng-show="commonMethods.emptyList(data.controllers)">
+      <p>There isn't any controller configured.</p>
+  </div>
+  <div ng-hide="commonMethods.emptyList(data.controllers)" class="table-responsive">
+    <table class="table">
+      <tr>
+          <th>Method</th>
+          <th>Connection Mode</th>
+          <th>IP Address</th>
+          <th>Port Number</th>
+          <!-- <th colspan="2">Operations</th> -->
+          <th colspan="3">Operations</th>
+      </tr>
+      <tr ng-repeat="ctl in data.controllers">
+          <td>{{ctl.protocol}}</td>
+          <td>{{ctl.connection_mode}}</td>
+          <td>{{ctl.ip}}</td>
+          <td>{{ctl.port}}</td>
+          <!-- <td style="min-width:120px"> -->
+          <td>
+            [ <a data-toggle="modal" href="#{{ctl.ip.split('.').join('')}}-{{ctl.port}}" ng-click="editing = edit(ctl); editHier = ['Configuration', br.name, 'Controllers', 'Editing']">Edit</a>
+            | <confirm-before-removal class="" ref="#del-{{ctl.ip.split('.').join('')}}-{{ctl.port}}"></confirm-before-removal> ]
+          </td>
+          <td>
+              <remove-item-window ref-id="del-{{ctl.ip.split('.').join('')}}-{{ctl.port}}" callback="crud.del(item)" item="ctl">
+                  <p>Are you sure you want to delete this controller?</p>
+              </remove-item-window>
+          </td>
+          <td>
+            <div class="modal fade" id="{{ctl.ip.split('.').join('')}}-{{ctl.port}}" tabindex="-1" role="dialog" aria-labelledby="existingCtrlLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <!--<h4 class="modal-title">Controller</h4>-->
+                  </div>
+                  <div class="modal-body">
+                    <breadcrumbs hierarchy="editHier"></breadcrumbs>
+                    <form role="form" name="ctrlform">
+                      <div class="form-group">
+                          <label>Method:</label>
+                          <select class="form-control" ng-model="editing.protocol" ng-options="m for m in data.methods">
+                          </select>
+                          <p class="help-block">{{helpText.controller.conn_protocol}}</p>
+                      </div>
+                      <div class="form-group">
+                          <label>Connection Mode:</label>
+                          <select class="form-control" ng-model="editing.connection_mode" ng-options="m for m in data.mode">
+                          </select>
+                          <p class="help-block">{{helpText.controller.conn_mode}}</p>
+                      </div>
+                      <div class="form-group">
+                          <label>IP Address:</label>
+                          <input class="form-control" type="text" ng-model="editing.ip" ip-addr>
+                          <p class="help-block">{{helpText.basic.ip_addr}}</p>
+                      </div>
+                      <div class="form-group">
+                          <label>Port:</label>
+                          <input class="form-control" type="number" ng-model="editing.port">
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-disabled="ctrlform.$pristine || ctrlform.$dirty && ctrlform.$invalid" data-dismiss="modal" ng-click="crud.update(editing)">Save changes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  </div> <!-- modal-footer -->
+                </div> <!-- modal-content -->
+              </div> <!-- modal-dialog -->
+            </div> <!-- modal -->
+          </td>
+      </tr>
+    </table>
+  </div>
+  <!--buttons-->
+  <hr>
+  <div class="form-group">
+    <div>
+      <a class="btn btn-default" data-toggle="modal" href="#newctrl" ng-click="record = initializer.newCtrl().init(); newHier = ['Configuration', br.name, 'Controllers', 'New Controller']">Add a new controller</a>
+    </div>
+  </div>
+
+  <!-- the pop-up window for adding a new controller -->
+  <div class="modal fade" id="newctrl" tabindex="-1" role="dialog" aria-labelledby="newCtrlLabel" aria-hidden="true" ng-init="">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">New Controller</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="newHier"></breadcrumbs>
+          <form role="form" name="ctrlform">
+            <div class="form-group">
+                <label>Method:</label>
+                <select class="form-control" ng-model="record.protocol" ng-options="m for m in data.methods">
+                </select>
+                <p class="help-block">{{helpText.controller.conn_protocol}}</p>
+            </div>
+            <div class="form-group">
+                <label>Connection Mode:</label>
+                <select class="form-control" ng-model="record.connection_mode" ng-options="m for m in data.mode">
+                </select>
+                <p class="help-block">{{helpText.controller.conn_mode}}</p>
+            </div>
+            <div class="form-group">
+                <label>IP Address:</label>
+                <input class="form-control" type="text" ng-model="record.ip" ip-addr>
+                <p class="help-block">{{helpText.basic.ip_addr}}</p>
+            </div>
+            <div class="form-group">
+                <label>Port:</label>
+                <input class="form-control" type="number" ng-model="record.port">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-disabled="ctrlform.$pristine || ctrlform.$dirty && ctrlform.$invalid" data-dismiss="modal" ng-click="crud.create(record)">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div> <!-- modal-footer -->
+      </div> <!-- modal-content -->
+    </div> <!-- modal-dialog -->
+  </div> <!-- modal -->
+</div>

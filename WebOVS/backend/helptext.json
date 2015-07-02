@@ -1,0 +1,83 @@
+{
+    "basic": {
+         "dp_id": "The OpenFlow datapath ID in use. Exactly 16 hex digits.",
+         "fail_mode": "This setting determines the switch's behavior when it gets disconnected from the controller. In STANDALONE mode, the switch will act like an ordinary MAC-learning switch; In SECURE mode, no new network connections can be set up.",
+         "of_version": "List of OpenFlow protocols that may be used when negotiating a connection with a controller.",
+         "ip_addr": "An IP address in dot-decimal notationm (e.g. 172.16.254.1).",
+         "mac_addr": "An MAC address expressed in hexadecimal notation (e.g. 00:90:83:6A:B3:B7)."
+    },
+    "controller": {
+         "conn_protocol": "The protocol the switch uses to talk with the OpenFlow controller.",
+         "conn_mode": "In IN-BAND mode, the controller network overlaps the network that is being controlled; In OUT-OF-BAND mode, the controller network is separate from the network that is being controlled."
+    },
+    "port": {
+         "port_num": "The port index that identifies the physical port on the switch.",
+         "vlan_mode": "The VLAN mode of the port.",
+         "vlan_tag": "The port's native VLAN.",
+         "vlan_trunks": "The VLAN or VLANs that this port trunks.",
+         "flow_control": "Flow-control is a mechanics allowing the receiving party of a connection to control the rate of the sending party.",
+         "link_speed": "The speed of the interface.",
+         "queue": "Enable queues on this port. There are 8 configurable queues on each port.",
+         "lag": "This port belongs to a bond.",
+         "lacp_port_id": "It is used to identify individual port participating in a bond.",
+         "lacp_port_priority": "In LACP negotiation ports with numeriucally lower priorities are preferred for aggregation.",
+         "lacp_aggregation_key": "Port with different aggregation keys may not be active within a given bond at the same time."
+    },
+    "tunnel": {
+         "gre": {
+         "remote_ip": "The remote tunnel endpoint.",
+         "local_ip": "The tunnel destination IP address that received packets must match.",
+         "src_mac": "The source MAC address of the sent out traffic.",
+         "dest_mac": "The destination MAC address of the sent out traffic.",
+         "egress_port_num": "The physical port to which encapsulated packets are forwarded.",
+         "tunnel_vlan_id": "The native VLAN ID of the encapsulated traffic."
+         }
+    },
+    "bond": {
+         "bond_name": "The index used to identify a bond.",
+         "bond_type": "Two link aggregation types exist: static and dynamic LCAP aggregation.",
+         "bond_member": "Ports that are members of this bond.",
+         "link_speed": "The speed of the bond.",
+         "bond_vlan_mode": "The VLAN mode of the aggregation.",
+         "bond_vlan_tag": "The aggregation's native VLAN.",
+         "bond_vlan_trunks": "The VLAN or VLANs that this aggregation trunks.",
+         "lacp_system_id": "This ID is used to identify itself to its partners. Must be a nonzero MAC address.",
+         "lacp_system_priority": "In LACP negotiations, link status decisions are made by the system with the numerically lower priority.",
+         "lacp_time": "The LACP timing while which should be used on this bond.",
+         "lacp_mode": "LACP packets are exchanged between ports in two modes: active and passive."
+    },
+    "group_table": {
+         "group_id": "The index used to identify a group.",
+         "group_type": "Group type determines the group semantics.",
+         "group_bucket_actions": "Actions in the bucket.",
+         "group_bucket_watch_group": "A group to watch on for a FAST_FAILOVER group.",
+         "group_bucket_watch_port": "A port to watch on for a FAST_FAILOVER group."
+    },
+    "meter_table": {
+         "meter_id": "The index used to identify a group.",
+         "meter_flags": "Meter configuration flags.",
+         "meter_bands": "An unordered list of meter bands, where each meter band specifies the rate of the band and the way to process the packet. Currently a meter entry can contain only one band."
+    },
+    "flow_table": {
+         "table_id": "The ID of the flow table this flow will be added to.",
+         "match_fields": "Choose a field name and type in its value then click 'Add Field' to preview field description here. Or simply edit field description here.",
+         "actions":  "Choose an action type and specify its parameter then click 'Add Action' to preview the actions list here. Or simply edit actions list here."
+    },
+    "mirror": {
+         "mirror_name": "Arbitrary identifier for the Mirror.",
+         "ingress_port": "Ports on which arriving packets are selected for mirroring.",
+         "egress_port": "Ports on which departing packets are selected for mirroring.",
+         "output_port": "Specifying a port for mirror output reserves that port exclusively for mirroring."
+    },
+    "netflow": {
+         "active_timeout": "The interval at which NetFlow records are sent for flows that are still active.",
+         "netflow_target": "NetFlow targets."
+    },
+    "sflow": {
+         "polling": "Polling rate in seconds to send port statistics to the collector.",
+         "header": "Number of bytes of a sampled packet to send to the collector.",
+         "agent": "Name of the network device whose IP address should be reported as the 'agent address' to collectors.",
+         "sampling": "Rate at which packets should be sampled and sent to the collector.",
+         "target": "sFlow targets."
+    }
+}

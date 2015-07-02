@@ -1,0 +1,203 @@
+<div ng-controller="TunnelCtrl">
+  <h4>This bridge contains the following tunnels(s).</h4>
+  <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+  <div class="alert alert-warning" ng-show="commonMethods.emptyList(data.tunnels)">
+      <p>There isn't any tunnel configured.</p>
+  </div>
+  <form class="form-horizontal" role="form">
+    <div class="form-group">
+      <label class="col-md-2 control-label">Tunnel Type:</label>
+      <div class="col-md-2">
+        <select class="form-control" ng-model="data.enabledType" ng-options="t for t in data.availableTypes">
+        </select>
+      </div>
+    </div>
+  </form>
+  <!--panel and collapse-->
+  <div class="panel-group" id="tunnellist">
+    <div class="panel panel-default" ng-repeat="tunnel in data.tunnels | orderBy:controlMethod.tunnelNum | filter:controlMethod.typeFilter">
+      <div class="panel-heading">
+        <h5 class="panel-title">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#tunnellist" href="#{{tunnel.name}}">
+            <em>{{tunnel.name}}</em>
+          </a>
+        </h5>
+      </div> <!-- panel heading -->
+      <div id="{{tunnel.name}}" class="panel-collapse collapse">
+        <div class="container">
+          <form class="form-horizontal" role="form" name="tunnelform">
+            <div class="form-group">
+              <label class="col-md-3 control-label">Remote IP Address:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.options.remote_ip}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Local IP Address:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.options.local_ip}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Source MAC:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.options.src_mac}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Destination MAC:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.options.dst_mac}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Egress Port Number:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.options.egress_port.split('/')[2]}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">VLAN ID:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.options.vlan}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">OpenFlow Port Number:</label>
+              <div class="col-md-9">
+                  <p class="form-control-static">{{tunnel.ofport}}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <div class="col-md-12">
+                <a class="btn btn-default" data-toggle="modal" href="#edit-{{tunnel.name}}" ng-click="editing = edit(tunnel); editHier = ['Configuration', br.name, 'Tunnels', editing.name, 'Editing']">Edit</a>
+                <confirm-before-removal class="btn btn-default" ref="#del-{{tunnel.name}}"></confirm-before-removal>
+              </div>
+            </div>
+          </form>
+        </div>
+        <remove-item-window ref-id="del-{{tunnel.name}}" callback="crud.del(item)" item="tunnel">
+          <p>Are you sure you want to delete this tunnel?</p>
+        </remove-item-window>
+        <!-- the pop-up window for editing an existing tunnel -->
+        <div class="modal fade" id="edit-{{tunnel.name}}" tabindex="-1" role="dialog" aria-labelledby="tunLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <!--<h4 class="modal-title">Tunnel</h4>-->
+              </div>
+              <div class="modal-body">
+                <breadcrumbs hierarchy="editHier"></breadcrumbs>
+                <form role="form" name="tunForm">
+                  <div class="well">
+                    <div class="form-group">
+                      <label>Remote IP Address:</label>
+                      <input class="form-control" type="text" ng-model="editing.options.remote_ip" ip-addr>
+                      <p class="help-block">{{helpText.tunnel.gre.remote_ip}}{{helpText.basic.ip_addr}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label>Local IP Address:</label>
+                      <input class="form-control" type="text" ng-model="editing.options.local_ip" ip-addr>
+                      <p class="help-block">{{helpText.tunnel.gre.local_ip}}</p>
+                    </div>
+                  </div>
+                  <div class="well">
+                    <div class="form-group">
+                      <label>Source MAC:</label>
+                      <input class="form-control" type="text" ng-model="editing.options.src_mac" mac-addr>
+                      <p class="help-block">{{helpText.tunnel.gre.src_mac}}</p>
+                    </div>
+                    <div class="form-group">
+                      <label>Destination MAC:</label>
+                      <input class="form-control" type="text" ng-model="editing.options.dst_mac" mac-addr>
+                      <p class="help-block">{{helpText.tunnel.gre.dest_mac}}</p>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Egress Port Number:</label>
+                    <select class="form-control" ng-model="editing.options.egress_port" ng-options="p.split('/')[2] for p in data.phyPorts | orderBy:controlMethod.portNum" required>
+                    </select>
+                    <p class="help-block">{{helpText.tunnel.gre.egress_port_num}}</p>
+                  </div>
+                  <div class="form-group">
+                    <label>VLAN ID:</label>
+                    <input class="form-control" type="number" ng-model="editing.options.vlan" required min="1" max="4094">
+                    <p class="help-block">{{helpText.tunnel.gre.tunnel_vlan_id}}</p>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-disabled="tunForm.$pristine || tunForm.$dirty && tunForm.$invalid" data-dismiss="modal" ng-click="crud.update(editing)">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div> <!-- footer -->
+            </div> <!-- content -->
+          </div> <!-- dialog -->
+        </div> <!-- modal -->
+      </div> <!-- panel-collapse -->
+    </div> <!-- panel -->
+  </div> <!-- panel group -->
+  <hr>
+  <a class="btn btn-default" data-toggle="modal" href="#newtunnel" ng-click="record = initializer.newTunnel().init(); newHier = ['Configuration', br.name, 'Tunnels', 'New Tunnel']">Add a new tunnel</a>
+
+  <!-- the pop-up window for adding a new tunnel -->
+  <div class="modal fade" id="newtunnel" tabindex="-1" role="dialog" aria-labelledby="newTunLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">New Tunnel</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="newHier"></breadcrumbs>
+          <form role="form" name="newTunForm">
+            <div class="form-group">
+                <label>Tunnel Number:</label>
+                <select class="form-control" ng-model="record.name" ng-options="t.substr(3) for t in data.tunnelsOptions" required></select>
+            </div>
+            <div class="well">
+              <div class="form-group">
+                <label>Remote IP Address:</label>
+                <input class="form-control" ng-model="record.options.remote_ip" type="text" ip-addr>
+                <p class="help-block">{{helpText.tunnel.gre.remote_ip}} {{helpText.basic.ip_addr}}</p>
+              </div>
+              <div class="form-group">
+                <label>Local IP Address:</label>
+                <input class="form-control" ng-model="record.options.local_ip" type="text" ip-addr>
+                <p class="help-block">{{helpText.tunnel.gre.local_ip}} {{helpText.basic.ip_addr}}</p>
+              </div>
+            </div>
+            <div class="well">
+              <div class="form-group">
+                <label>Source MAC:</label>
+                <input class="form-control" ng-model="record.options.src_mac" type="text" mac-addr>
+                <p class="help-block">{{helpText.tunnel.gre.src_mac}} {{helpText.basic.mac_addr}}</p>
+              </div>
+              <div class="form-group">
+                <label>Destination MAC:</label>
+                <input class="form-control" ng-model="record.options.dst_mac" type="text" mac-addr>
+                <p class="help-block">{{helpText.tunnel.gre.dest_mac}} {{helpText.basic.mac_addr}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Egress Port Number:</label>
+              <select class="form-control" ng-model="record.options.egress_port" ng-options="p.split('/')[2] for p in data.phyPorts | orderBy:controlMethod.portNum" required>
+              </select>
+              <p class="help-block">{{helpText.tunnel.gre.egress_port_num}}</p>
+            </div>
+            <div class="form-group">
+              <label>VLAN ID:</label>
+              <input class="form-control" type="number" ng-model="record.options.vlan" min="1" max="4094" required>
+              <p class="help-block">{{helpText.tunnel.gre.tunnel_vlan_id}}</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-disabled="newTunForm.$pristine || newTunForm.$dirty && newTunForm.$invalid" data-dismiss="modal" ng-click="crud.create(record, data.enabledType)">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div> <!-- footer -->
+      </div> <!-- content -->
+    </div> <!-- dialog -->
+  </div> <!-- modal -->
+</div>

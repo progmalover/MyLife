@@ -1,0 +1,33 @@
+<div class="row">
+  <div class="col-md-2">
+    <div class="panel-group" id="tree-pane">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a class="accordion-toggle" data-toggle="collapse" href="#hw" data-parent="#tree-pane" ng-click="controlMethod.togglePrimary('hw'); panel = data.phySwitchPage">Switch Resource</a>
+          </h4>
+        </div>
+        <ul id="hw" class="list-group panel-collapse collapse">
+        </ul>
+      </div>
+      <div class="panel panel-default" ng-repeat="logicBridge in bridges | orderBy:'+name' ">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a class="accordion-toggle" data-toggle="collapse" ng-href="#{{logicBridge.name}}" data-parent="#tree-pane" ng-click="controlMethod.togglePrimary(logicBridge.name); controlMethod.displayBridge(logicBridge.name)">
+              <span class="glyphicon glyphicon-plus"></span> {{logicBridge.name}}
+            </a>
+          </h4>
+        </div>
+        <nav-ul id="{{logicBridge.name}}" class="list-group panel-collapse collapse" start-tab="{{data.firstTab}}" all-tabs="controlMethod.left_pane.tabs" on-select="controlMethod.switchToTab(index)">
+        </nav-ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-10">
+    <div class="container">
+      <div class="row">
+        <div ng-include src="panel.url"></div>
+      </div>
+    </div>
+  </div>
+</div>

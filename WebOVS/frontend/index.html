@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html ng-app="manager">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link rel="shortcut icon" href="img/webovs.ico" type="image/x-icon" />
+        <style>
+            body {
+                padding-top: 68px;
+            }
+            .current {
+                font-weight: bold;
+                color: #563d7c;
+            }
+            .form-horizontal .control-label {
+                text-align: left;
+            }
+        </style>
+        <!--[if IE]>
+        <script type="text/javascript">
+            window.location = "http://browsehappy.com/"
+        </script>
+        <![endif]-->
+        <title>webovs OVS Switch Management Panel</title>
+    </head>
+    <body>
+        <div ng-controller="MenuBarCtrl">
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button> <a class="navbar-brand" href="#"><img style="max-height: 18px" src="/img/webovs_logo.png"></a>
+                    </div>
+                    <div class="collapse navbar-collapse navbar-ex1-collapse">
+                        <ul class="nav navbar-nav">
+                            <li ng-class="{active: controlMethod.isActive('/bridges/configure')}"><a href="#/bridges/configure">Configuration</a></li>
+                            <li ng-class="{active: controlMethod.isActive('/bridges/monitor')}"><a href="#/bridges/monitor">Monitor</a></li>
+                            <li ng-class="{active: controlMethod.isActive('/help')}"><a href="#/help">Help</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="/logout">Log Out</a></ul>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Loading Spinner as a Modal -->
+            <div class="modal" id="loadingSpinner" data-backdrop="static" data-keyboard="false">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title">Loading...</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="progress progress-striped active">
+                      <div class="progress-bar" style="width: 100%">
+                        <span class="sr-only">Loading data...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div> <!-- /.modal-content -->
+              </div> <!-- /.modal-dialog -->
+            </div> <!-- /.modal -->
+            <div class="container" ng-view></div>
+            <div class="container">
+              <div class="row">
+                  <footer style="margin-top: 150px" class="col-xs-12 col-md-offset-2 col-md-10">
+                      <div style="float: left;">
+                          Copyright &#174; 2008-{{year}} webovs All Rights Reserved.
+                      </div>
+                      <!--<div style="float: right;">-->
+                          <!--Powered by <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a> && <a href="http://angularjs.org" target="_blank">AngularJS</a>.-->
+                      <!--</div>-->
+                  </footer>
+              </div>
+            </div>
+        </div> <!-- MenuBarCtrl -->
+        <script src="lib/angular.js"></script>
+        <!-- <script src="lib/angular-route.js"></script> -->
+        <script src="lib/jquery.js"></script>
+        <script src="lib/bootstrap.js"></script>
+        <script src="lib/ui-bootstrap-tpls-0.6.0.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/directives.js"></script>
+        <script src="js/controllers.js"></script>
+        <script src="js/filters.js"></script>
+        <script src="js/services.js"></script>
+    </body>
+</html>

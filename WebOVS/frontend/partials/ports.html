@@ -1,0 +1,296 @@
+<div ng-controller="PortsCtrl">
+  <h4>The following ports are added to this bridge.</h4>
+  <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+  <div class="alert alert-warning" ng-show="commonMethods.emptyList(data.ports)">
+      <p>There isn't any port on this bridge.</p>
+  </div>
+  <div class="panel-group" id="portlist">
+    <div class="panel panel-default" ng-repeat="port in data.ports | orderBy:'+ofport' | filter:controlMethod.validOfPort">
+      <div class="panel-heading">
+        <h5 class="panel-title">
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#portlist" href="#port-{{port.name.split('/')[2]}}">
+              <em>Port {{port.name.split("/")[2]}} ({{port.name}})</em>
+          </a>
+        </h5>
+      </div>
+      <div id="port-{{port.name.split('/')[2]}}" class="panel-collapse collapse">
+        <div class="container">
+          <form class="form-horizontal" role="form">
+            <div class="form-group">
+              <label class="col-md-3 control-label">VLAN Mode:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{port.vlan_config.vlan_mode}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Tag:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{port.vlan_config.tag}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Trunks:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{commonMethods.displayVlanTrunks(port.vlan_config.vlan_mode, port.vlan_config.trunks)}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">OpenFlow Port Number:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{port.ofport}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Link Speed:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{port.options.link_speed}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Flow Control:</label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{port.options.flow_ctl}}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Queues:</label>
+              <div class="col-md-9">
+                <p class="help-block" ng-show="commonMethods.defaultQueue(port.qos)">Queuing is disabled on this port.</p>
+                <!-- <p class="help-block" ng-hide="commonMethods.defaultQueue(port.qos)">The following queues are configured on this port.</p> -->
+                <div class="table-responsive" ng-hide="commonMethods.defaultQueue(port.qos)">
+                  <table class="table table-bordered">
+                    <tr>
+                      <th>Queue Index</th>
+                      <th>Min Rate (bit/s)</th>
+                      <th>Max Rate (bit/s)</th>
+                      <th>Burst (bit/s)</th>
+                    </tr>
+                    <tr ng-repeat="queue in port.qos.queues">
+                      <td>{{queue.queue_id}}</td>
+                      <td>{{queue.min_rate}}</td>
+                      <td>{{queue.max_rate}}</td>
+                      <td>{{queue.burst}}</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <label class="col-md-3 control-label">LACP Config:</label>
+              <div class="col-md-9">
+                <!-- <p class="help-block" ng-show="controlMethod.isLagMember(port.options)">This port is a member of a LAG.</p> -->
+                <p class="help-block" ng-hide="controlMethod.isLagMember(port.options)">This port is not a member of a LAG.</p>
+                <div class="table-responsive" ng-show="controlMethod.isLagMember(port.options)">
+                  <table class="table table-bordered">
+                    <tr>
+                      <th>LACP Port ID</th>
+                      <th>LACP Port Priority</th>
+                      <th>LACP Aggregation Key</th>
+                    </tr>
+                    <tr>
+                      <td>{{port.options["lacp-port-id"]}}</td>
+                      <td>{{port.options["lacp-port-priority"]}}</td>
+                      <td>{{port.options["lacp-aggregation-key"]}}</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <div class="col-md-12">
+                <button type="button" class="btn btn-default" data-toggle="modal" href="#edit-{{port.name.split('/')[2]}}" ng-click="editing = controlMethod.edit(port); newmember = null; override = !commonMethods.defaultQueue(port.qos); LagMember = controlMethod.isLagMember(port.options); newqueue={}; editHier = ['Configuration', br.name, 'Ports', port.name.split('/')[2], 'Editing']">Edit</button>
+                <confirm-before-removal class="btn btn-default" ref="#del-{{port.name.split('/')[2]}}"></confirm-before-removal>
+              </div>
+            </div>
+          </form>
+        </div> <!-- container -->
+      </div>
+      <remove-item-window ref-id="del-{{port.name.split('/')[2]}}" callback="crud.del(item)" item="port">
+        <p>Are you sure you want to delete this port?</p>
+      </remove-item-window>
+      <!-- the pop-up window for port editing -->
+      <div class="modal fade" id="edit-{{port.name.split('/')[2]}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <!--<h4 class="modal-title">Port {{port.name.split("/")[2]}}</h4>-->
+            </div>
+            <div class="modal-body">
+              <breadcrumbs hierarchy="editHier"></breadcrumbs>
+              <form role="form" name="portform">
+                <div class="well">
+                  <div class="form-group">
+                    <label class="control-label">VLAN Mode:</label>
+                    <select class="form-control" ng-model="editing.vlan_config.vlan_mode" ng-options="t for t in data.options.vlanModes"></select>
+                    <p class="help-block">{{helpText.port.vlan_mode}}</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Tag:</label>
+                    <input class="form-control" type="number" ng-model="editing.vlan_config.tag" min="1" max="4094" required>
+                    <p class="help-block">{{helpText.port.vlan_tag}}</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Trunks:</label>
+                    <div class="input-group" ng-repeat="n in [] | range:editing.vlan_config.trunks.length">
+                      <input type="number" class="form-control" ng-model="editing.vlan_config.trunks[$index]" min="1" max="4094">
+                      <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="editing.vlan_config.trunks.splice($index, 1)">&minus;</button>
+                      </span>
+                    </div>
+                    <div class="input-group">
+                      <input type="number" class="form-control" ng-model="newmember" min="1" max="4094">
+                      <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="editing.vlan_config.trunks.push(newmember); newmember=null">+</button>
+                      </span>
+                    </div>
+                    <p class="help-block">{{helpText.port.vlan_trunks}}</p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Link Speed:</label>
+                  <select class="form-control" ng-model="editing.options.link_speed" ng-options="s for s in data.options.speed">
+                  </select>
+                  <p class="help-block">{{helpText.port.link_speed}}</p>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Flow Control:</label>
+                  <select class="form-control" ng-model="editing.options.flow_ctl" ng-options="c for c in data.options.flowCtl"></select>
+                  <p class="help-block">{{helpText.port.flow_control}}</p>
+                </div>
+                <div class="well">
+                  <div class="form-group">
+                    <label class="control-label">Queues:</label>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" ng-model="override" ng-change="controlMethod.overrideCb(port, editing)">{{helpText.port.queue}}
+                      </label>
+                    </div>
+                    <div class="table-responsive">
+                      <table ng-show="override" class="table table-bordered">
+                        <tr>
+                          <th>Queue Index</th>
+                          <th>Min Rate (bit/s)</th>
+                          <th>Max Rate (bit/s)</th>
+                          <th>Burst (bit/s)</th>
+                          <th></th>
+                        </tr>
+                        <tr ng-repeat="queue in editing.qos.queues">
+                          <td>{{queue.queue_id}}</td>
+                          <td><input type="number" class="form-control" ng-model="editing.qos.queues[$index].min_rate"></td>
+                          <td><input type="number" class="form-control" ng-model="editing.qos.queues[$index].max_rate"></td>
+                          <td><input type="number" class="form-control" ng-model="editing.qos.queues[$index].burst"></td>
+                          <td><button type="button" class="btn btn-default" ng-click="editing.qos.queues.splice($index, 1)">&minus;</button></td>
+                        </tr>
+                        <tr>
+                          <td><select class="form-control" ng-model="newqueue.queue_id" ng-options="i for i in data.options.confQueues"></select></td>
+                          <td><input type="number" class="form-control" ng-model="newqueue.min_rate"></td>
+                          <td><input type="number" class="form-control" ng-model="newqueue.max_rate"></td>
+                          <td><input type="number" class="form-control" ng-model="newqueue.burst"></td>
+                          <td><button type="button" class="btn btn-default" ng-click="editing.qos.queues.push(newqueue); newqueue={}">+</button></td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="well">
+                  <div class="form-group">
+                    <label class="control-label">LACP Configurations:</label>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" ng-model="LagMember" ng-change="controlMethod.uncheckLacpMember(port, editing)">{{helpText.port.lag}}
+                      </label>
+                    </div>
+                  </div>
+                  <div ng-show="LagMember">
+                      <div class="form-group">
+                        <label class="control-label">LACP Port ID:</label>
+                        <input type="number" class="form-control" ng-model="editing.options['lacp-port-id']">
+                        <p class="help-block">{{helpText.port.lacp_port_id}}</p>
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label">LACP Port Priority:</label>
+                        <input type="number" class="form-control" ng-model="editing.options['lacp-port-priority']">
+                        <p class="help-block">{{helpText.port.lacp_port_priority}}</p>
+                      </div>
+                      <div>
+                        <label class="control-label">LACP Aggregation Key:</label>
+                        <input type="number" class="form-control" ng-model="editing.options['lacp-aggregation-key']">
+                        <p class="help-block">{{helpText.port.lacp_aggregation_key}}</p>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" ng-disabled="(portform.$dirty && portform.$invalid) || !commonMethods.isVlanConfigValid(editing)" data-dismiss="modal" ng-click="crud.update(editing)">Save changes</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div> <!-- modal-footer -->
+          </div> <!-- modal-content -->
+        </div> <!-- modal-dialog -->
+      </div> <!-- modal -->
+    </div> <!-- panel -->
+  </div> <!-- panel group -->
+  <hr>
+  <a class="btn btn-default" data-toggle="modal" href="#newport" ng-click="record = initializer.newPort().init(); newHier = ['Configuration', br.name, 'Ports', 'New Port']">Add a new port</a>
+  <div class="modal fade" id="newport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <!--<h4 class="modal-title">New Port</h4>-->
+        </div>
+        <div class="modal-body">
+          <breadcrumbs hierarchy="newHier"></breadcrumbs>
+          <form role="form" name="newportform">
+            <div class="form-group">
+              <label>Port Number:</label>
+              <select class="form-control" ng-model="record.name" ng-options="p.name.split('/')[2] group by p.type for p in data.options.availableports"></select>
+              <p class="help-block">{{helpText.port.port_num}}</p>
+            </div>
+            <div class="well">
+              <div class="form-group">
+                <label class="control-label">VLAN Mode:</label>
+                <select class="form-control" ng-model="record.vlan_config.vlan_mode" ng-options="t for t in data.options.vlanModes"></select>
+                <p class="help-block">{{helpText.port.vlan_mode}}</p>
+              </div>
+              <div class="form-group">
+                <label class="control-label">Tag:</label>
+                <input class="form-control" type="number" ng-model="record.vlan_config.tag" min="1" max="4094" required>
+                <span class="help-block">{{helpText.port.vlan_tag}}</span>
+              </div>
+              <div class="form-group">
+                <label class="control-label">Trunks:</label>
+                <div class="input-group" ng-repeat="n in [] | range:record.vlan_config.trunks.length">
+                  <input type="number" class="form-control" ng-model="record.vlan_config.trunks[$index]" min="1" max="4094">
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="record.vlan_config.trunks.splice($index, 1)">&minus;</button>
+                  </span>
+                </div>
+                <div class="input-group">
+                  <input type="number" class="form-control" ng-model="newmember" min="1" max="4094">
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="record.vlan_config.trunks.push(newmember); newmember=null">+</button>
+                  </span>
+                </div>
+                <p class="help-block">{{helpText.port.vlan_trunks}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Flow Control:</label>
+              <select class="form-control" ng-model="record.options.flow_ctl" ng-options="c for c in data.options.flowCtl"></select>
+              <p class="help-block">{{helpText.port.flow_control}}</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-disabled="newportform.$pristine || newportform.$dirty && newportform.$invalid || !commonMethods.isVlanConfigValid(record)" data-dismiss="modal" ng-click="crud.create(record)">Add</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
