@@ -1,0 +1,88 @@
+                           SipWrapper Design
+                           =================
+
+What files contains in each folder?
+-----------------------------------
+
+/sipSDK    
+    |
+    |--./doc            sip sdk documents    
+    |--./lib            libraries
+    |--./Make.defines   build file
+    |--./Makefile       build file
+    |--./sipstack       sip stack dependences
+    |--./h              sip sdk interface code
+    |--./src            sip sdk source code
+    |--./test           sip sdk test source code
+
+
+How does SipWrapper works in network?
+-------------------------------------
+
+As other network protocol stacks and SIP protocol said, SipWrapper works in UA on network elements.
+
+            Application                     Application
+                UAC                             UAS
+                ||                              ||
+         request  response               request  response
+                ||                              ||
+            SipWrapper                      SipWrapper
+                ||                              ||
+             SIP stack --------------------- SIP stack
+
+
+Component Overview
+------------------
+
+    ----------------        SIP message       --------------------
+    | Sip Provider | -----------------------> | Sip Call Manager |
+    ---------------<-                         --------------------
+        |       |    \                             |        |
+       send    recv    \                        create  call back
+        |       |        \                         |        |
+  ---------------------    \                  ------------  |
+  | Sip Stack Adapter |      send response -- | Sip Call |  |
+  ---------------------                       ------------  |
+            |                                               |
+        Sip Stack                                   ------------------
+                                                    | User Call Sink |
+                                                    ------------------
+
+
+Basic Work Flow
+---------------
+
+        -----------------
+        | Process Start |
+        -----------------
+                |
+                | Is SIP request?
+                |
+                Y ------------------------ N ---------------------- |
+                |                                                   |
+                | Is INVITE?                                        |
+                |                                                   |
+                Y --------------- N ------------- |                 |
+                |                                 |                 |
+                | Call Exists?                    |                 |
+                |             ---------------     |                 |
+                Y ---- N ---- | create call |     |                 |
+                |             ---------------     |                 |
+                |                   |             |                 |
+     ------------------------       |       ----------          ----------
+     | Mark it as re-INVITE |       |       | Notify |          | Notify |
+     ------------------------       |       ----------          ----------
+                |                   |             |                 |
+                |                   |             |                 |
+ ---------------------------------  |             |                 |
+ | Notify user that INVITE comes | -              |                 |
+ ---------------------------------                |                 |
+                |                                 |                 |
+                |                                 |                 |
+            -------                               |                 |
+            | END | -------------------------------------------------
+            -------
+
+
+
+
