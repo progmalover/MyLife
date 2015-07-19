@@ -1,14 +1,20 @@
-/*------------------------------------------------------*/
-/* Sip SDK interfaces                                   */
-/* CSipSDK.h                                            */
-/*------------------------------------------------------*/
+/**
+*   Sip SDK interfaces
+*   CSipSDK.h
+*
+*   These interfaces is defined for general perpose, we have to implement these
+*   interfaces as codes in src folder, this is OOP code style.
+*/
 
 #ifndef _SIP_SDK_INTERFACE_H__
 #define _SIP_SDK_INTERFACE_H__
 
 #include "sipdef.h"
 
-
+/**
+*   Basically, ISipUri/ISipMessage/ISipCall/ISipProvider/ISipLogger is the
+*   interface we explore. Just the class bellow who has no space before.
+*/
 class ISipUri;
 class ISipMessage;
     class ISipFrom;
@@ -40,9 +46,11 @@ class ISipProvider;
 class ISipLoggerSink;
 
 
-//////////////////////////////////////////////////////////////
-// ISDOrigin identifies SDP "o=" field, you would access it 
-// in "ISessionDescription" class
+/**
+*   SDP is the origin packet attached in SIP packet.
+*   ISDOrigin identifies SDP "o=" field, you would access it in 
+*   "ISessionDescription" class.
+*/
 class ISDOrigin
 {
 public:
@@ -78,9 +86,10 @@ public:
 };
 
 
-//////////////////////////////////////////////////////////////
-// ISDRepeatTime identifies SDP "r=" field, you would access it
-// in "ISDTimeDescription" class
+/**
+*   ISDRepeatTime identifies SDP "r=" field, you would access it
+*   in "ISDTimeDescription" class
+*/
 class ISDRepeatTime
 {
 public:
@@ -101,9 +110,10 @@ public:
 };
 
 
-//////////////////////////////////////////////////////////////
-// ISDRepeatTime identifies SDP "t=" field, you would access it
-// in "ISessionDescription" class
+/**
+*   ISDRepeatTime identifies SDP "t=" field, you would access it
+*   in "ISessionDescription" class
+*/
 class ISDTimeDescription
 {
 public:
@@ -122,11 +132,15 @@ public:
     virtual RTContainer& GetRepeatTimeList() = 0;
 };
 
-
-//////////////////////////////////////////////////////////////
-// ISDConnection identifies SDP "c=" field, there are 2 kinds of
-// connection, access session level connection in "ISessionDescription" 
-// class, access media level connection in "ISDMediaDescription"
+/**
+*   ISDConnection identifies SDP "c=" field, there are 2 kinds of
+*   connection, access session level connection in "ISessionDescription" 
+*   class, access media level connection in "ISDMediaDescription"
+*   
+*   The "const" at the end of function presents this function could not
+*   modify any private member variable. As C++ use copy method to return
+*   CStrRef, so define "const" in return value is useless.
+*/
 class ISDConnection
 {
 public:
@@ -150,10 +164,11 @@ public:
     virtual void    SetAddress(string address) = 0;
 };
 
-//////////////////////////////////////////////////////////////
-// ISDAttribute identifies SDP "a=" field, there are 2 kinds of
-// attribute, access session level attribute in "ISessionDescription" 
-// class, access media level attribute in "ISDMediaDescription"
+/**
+*   ISDAttribute identifies SDP "a=" field, there are 2 kinds of
+*   attribute, access session level attribute in "ISessionDescription" 
+*   class, access media level attribute in "ISDMediaDescription"
+*/
 class ISDAttribute
 {
 public:
@@ -176,9 +191,10 @@ public:
     virtual void            ClearAttribute(CStrRef key) = 0;
 };
 
-//////////////////////////////////////////////////////////////
-// Media codec, every codec requires codec name, media rate and
-// payload type.
+/*
+*   Media codec, every codec requires codec name, media rate and
+*   payload type. This presents "m=" field.
+*/
 class ISDCodec
 {
 public:
@@ -206,8 +222,10 @@ public:
     virtual void    SetParameters(string parameters) = 0;
 };
 
-// crypto line sample: 
-// a=crypto:1 AES_CM_128_HMAC_SHA1_32 inline:d0RmdmcmVCspeEc3QGZiNWpVLFJhQX1cfHAwJSoj|2^20|1:32
+/*
+*   crypto line sample: 
+*   a=crypto:1 AES_CM_128_HMAC_SHA1_32 inline:d0RmdmcmVCspeEc3QGZiNWpVLFJhQX1cfHAwJSoj|2^20|1:32
+*/
 class ISDCrypto
 {
 public:
@@ -223,6 +241,9 @@ public:
     virtual vector<ISDCryptoParam*>& GetAllParams() = 0;
 };
 
+/**
+*   Used in SDP.
+*/
 class ISDCryptoParam
 {
 public:
@@ -248,9 +269,9 @@ public:
     virtual void    SetMasterKeyIndexLen(uint32 len) = 0;
 };
 
-//////////////////////////////////////////////////////////////
-// SDP media information
-//
+/**
+*   SDP media information, used in SDP.
+*/
 class ISDMediaDescription
 {
 public:
@@ -292,11 +313,12 @@ public:
     virtual void                    ClearAllCryptos() = 0;
 };
 
-
-// class ISdpInfo indicates a sdp information, application can get sdp information 
-// or modify sdp information through this class
-// 
-// SDK would implement this interface class
+/**
+*   class ISdpInfo indicates a sdp information, application can get sdp information 
+*   or modify sdp information through this class
+*
+*   SDK would implement this interface class
+*/
 class ISessionDescription
 {
 public:
@@ -366,6 +388,9 @@ public:
     virtual MediaDescrContainer& GetMediaDescriptionList() = 0;
 };
 
+/**
+*   SIP uri, used in SIP request.
+*/
 class ISipUri
 {
 public:
@@ -410,6 +435,9 @@ public:
     virtual string      toString() = 0;
 };
 
+/**
+*   SIP from field used in request.
+*/
 class ISipFrom
 {
 public:
@@ -530,6 +558,7 @@ public:
 typedef vector<ISipContact *>  ContactList;
 typedef ContactList::iterator  ContactIter;
 
+/**
 // class ISipMessage indicates a sip message, this class would been used in following:
 // 1) in ISipCallSink, the SDK transfer a object of this class to up application to access Sip msg
 //    such as: get cseq data, sdp information &etc.
@@ -537,6 +566,7 @@ typedef ContactList::iterator  ContactIter;
 //    and sent it out.
 // 
 // SDK would implement this interface class
+*/
 class ISipMessage
 {
 public:
@@ -649,8 +679,10 @@ public:
     static ISipMessage *    CreateSipResponse(ISipMessage* request);
 };
 
-// class ISipCallSink provides multiple callback functions to application
-// when SDK accept incoming sip message, the SDK would notify application by calling callback functions
+/**
+*   class ISipCallSink provides multiple callback functions to application
+*   when SDK accept incoming sip message, the SDK would notify application by calling callback functions
+*/
 class ISipCallSink
 {
 public:
@@ -700,21 +732,28 @@ public:
 	virtual CmResult OnSessionTimeout() = 0;
 };
 
-// class ISipCall provides application to send multiple sip message like Invite, Ringing
+/***
+*   class ISipCall presents SIP session, provides application to send multiple sip message like Invite, Ringing.
+*   As RFC3261 said, SIP session presents a session between UA. From this session, UA could get the state and process by this state.
+*/
 class ISipCall
 {
 public:
     virtual ~ISipCall() {};
 
+    /*  Basically, add and release reference should be implement by an 
+    *   interface, just like Java.
+    */
 	virtual void AddRef() = 0;
 	virtual void ReleaseRef() = 0;
 
-    // create a new sip call
-    // @param sipFromUri, URI format "sip:msml@10.224.54.27:5060"
-    // @param sipToUri, URI format "sip:msml@10.224.54.27:5060""
+    /*  create a new sip call
+    *   @param sipFromUri, URI format "sip:msml@10.224.54.27:5060"
+    *   @param sipToUri, URI format "sip:msml@10.224.54.27:5060""
+    */
     static ISipCall *       CreateSipCall(CStrRef sipFromUri, CStrRef sipToUri);
     
-    // set/get sip call sink
+    //  set/get sip call sink
     virtual void            SetSipCallSink(ISipCallSink * sink) = 0;
     virtual ISipCallSink *  GetSipCallSink() const = 0;
 
