@@ -5,6 +5,15 @@ import javax.persistence.Table;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
+/**
+ * This is Entity Bean.
+ * 
+ * The "@Entity" token talks to persistent provider that this class is a
+ * database bean, who is controlled by EntityManager(???) sevice.
+ * The "@Table" token talks to EJB Container(???) that this object of this
+ * class need persistent.
+ * */
+
 @Entity
 @Table(name="CABIN")
 public class Cabin implements java.io.Serializable 
