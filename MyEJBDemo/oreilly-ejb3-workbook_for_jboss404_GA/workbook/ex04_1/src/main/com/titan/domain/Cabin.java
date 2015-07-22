@@ -6,12 +6,25 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 
 /**
+ * Overview
+ * ========
  * This is Entity Bean.
  * 
  * The "@Entity" token talks to persistent provider that this class is a
  * database bean, who is controlled by EntityManager(???) sevice.
+ * 
  * The "@Table" token talks to EJB Container(???) that this object of this
  * class need persistent.
+ * 
+ * This class implements java.io.Serializable, which make object could be
+ * serialize to store in disk or translate on network.
+ * 
+ * 
+ * Table-mapping Comments
+ * ======================
+ * Table-mapping comments like "@Table" "@Id" is not necessary. If omit these
+ * comments, class name and member function name.
+ * 
  * */
 
 @Entity
