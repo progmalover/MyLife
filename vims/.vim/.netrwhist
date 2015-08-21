@@ -1,0 +1,7 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =5
+let g:netrw_dirhist_1='/home/sam.gang/workspace/OVS/openvswitch-2.1.2_tp-work-4_ok-1'
+let g:netrw_dirhist_2='/home/sam.gang/pica8_20150206/branches_20150206/1.1/ovs/openvswitch-1.9/vswitchd'
+let g:netrw_dirhist_3='/home/sam.gang/pica8/branches/1.1/ovs/openvswitch-2.3.0_optionalDB-20150325'
+let g:netrw_dirhist_4='/home/sam.gang/pica8/automation/suite/acl'
+let g:netrw_dirhist_5='/home/sam.gang/pica8/branches/sdr/xorp/config'
