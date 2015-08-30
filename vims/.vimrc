@@ -16,6 +16,11 @@ set tags=tags; "ctags
 set ruler "显示当前位置
 set cc=80
 
+" support chinese "
+set fileencodings=utf-8,gb2312,gbk,gb18030
+set termencoding=utf-8
+set encoding=prc
+
 " high light "
 nnoremap <silent> <F1> :set hlsearch<CR>
 nnoremap <silent> <F2> :set nohlsearch<CR>
