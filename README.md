@@ -1,10 +1,10 @@
-# MyLife
+### MyLife
 This project records Miscellaneous of my work and learning, such as test or demo.
 
-# License
+### License
 This project is under GPL-v3 license.
 
-# How to use
+### How to use
 This project contains some of my works, details as below.
 <ur>
     <li>BigData        Some work of big data, suck as match of TianChi at Alibaba.inc</li>
