@@ -26,10 +26,27 @@ def getSingleton():
         s = Singleton()
     return s
 
+
+def decorateSingleton(cls, *arg, **kw):
+    instance={}
+    def getInstance():
+        if cls not in instance:
+            instance[cls] = cls(*arg, **kw)
+        return instance[cls]
+    return getInstance
+
+
+@decorateSingleton
+class Test(object):
+    pass
+
+
 def main():
     getSingleton().one()
     getSingleton().two()
     getSingleton().three()
+
+    t = Test()
 
 if __name__ == '__main__':
     main()
