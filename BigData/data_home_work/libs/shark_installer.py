@@ -17,8 +17,10 @@ class SharkInstaller:
             response['ret'] = -1
             response['msg'] = err.partition(":")[2]
         else:
-            response[]
+            response['ret'] = 0
+            response['msg'] = ret
 
     def run(self):
         print "run !"
-
+        shell_command('ls', '-l')
+        shell_command()
