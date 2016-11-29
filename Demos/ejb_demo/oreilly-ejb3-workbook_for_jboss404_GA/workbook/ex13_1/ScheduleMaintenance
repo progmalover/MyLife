@@ -1,3 +1,0 @@
-#!/bin/sh
-
-ant run.bookinbatch run.maintenance -Dparam.ship=%1 -Dparam.date=%2 -Dparam.description=%3
