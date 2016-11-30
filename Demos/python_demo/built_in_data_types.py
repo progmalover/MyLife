@@ -27,6 +27,8 @@ print '1' '2' # 12
 s = 'abc'
 print a[0] # a
 
+# Basic container, how to remember easily? {} [] (), only these three, which
+# is map, list, tuple.
 # directory
 # feature: no sequence, case sensitive.
 d = {'1':'first', '2':'second'} # this is directory

@@ -2,6 +2,12 @@
 
 1. openstack_understand_neutron
 2. http://linux-ip.net/pages/documents.html
+3. https://github.com/yeasy/openstack_code_Neutron
+
+
+### Notice?
+
+IR: in neutron, IR means route instance of hypervisor, which means kernel TCPIP route module with namespace.
 
 
 ### What's neutron?
@@ -29,10 +35,12 @@ Network node responses for network like L3 routing for subnet and outside, DHCP 
 
 
 ### DHCP?
+
 Openstack use "dnsmasq" to DHCP. "dnsmasq" bind its interface to br-int in network node.
 
 
 ### Routing Agent of network node and DVR?
+
 For linux kernel, a flow want routing will search local route table first, if miss, the flow will use default route and its interface. For compute node without DVR, the default route is network node. For compute node with DVR, if the vm has floating IP, compute node's route table will has a default route entry with this floating IP as src IP and an output interface associate. How to construct this is unknown??? But I think it's done in neutron floating IP module, it could get the floating IP from configures, and then add this default route into compute node. <1>P62 said route is added not into router module of kernel, but iptables, both on compute node and network node, it's mainly because there are few route, so route table size and its search speed is not problem.
 
 For network node without DVR, route module is response for flow between north and sourth. Also DNAT nad SNAT is here. For flow goes into vm, flow will be DNAT first in INPUT chain of iptables in network node, and then route in FORWARD chain of iptables, or route in vrouter if have. For flow comes from vm, flow will be route first, and then SNAT in OUTPUT chain.
@@ -43,4 +51,14 @@ All command at last is excute by "ip_wrapper.netns.execute(cmd, check_exit_code=
 
 
 ### Routing Service?
+
 Routing Service is to supply routing feature, located in neutron/service/l3_router/XXX, compute route through configure is here.
+
+
+### Floating IP and DVR in compute node?
+
+As said above, when enable DVR and floating IP, compute node with IR will process traffic between vm in different subnet, and traffic from vm with floating IP to outside. And network node just need to process traffic of vm without floating IP in different subnet.
+
+So after using DVR in vm, traffic between vm in same hypervisor is bridged by local ovs bridge, traffic between vm in different hypervisor is route by IR, which is local vrouter; traffic between vm and outside is route bu IR.
+
+These is done by neutron/agent/l3/dvr_router.py .
