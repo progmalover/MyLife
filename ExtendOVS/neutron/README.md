@@ -3,6 +3,7 @@
 1. openstack_understand_neutron
 2. http://linux-ip.net/pages/documents.html
 3. https://github.com/yeasy/openstack_code_Neutron
+4. http://www.cnblogs.com/sammyliu/p/4633814.html
 
 
 ### Notice?
@@ -62,3 +63,30 @@ As said above, when enable DVR and floating IP, compute node with IR will proces
 So after using DVR in vm, traffic between vm in same hypervisor is bridged by local ovs bridge, traffic between vm in different hypervisor is route by IR, which is local vrouter; traffic between vm and outside is route bu IR.
 
 These is done by neutron/agent/l3/dvr_router.py .
+
+
+### L2 pop and multi-table programing?
+
+L2 pop is in /neutron/plugins/ml2/, is focus on contruct L2 network using tunnel or vlan, supporting ovs, linux bridge, or Hyper-V L2.
+
+
+### BR-TUN flow table in non-DVR mode?
+
+For ovs, <4> shows l2pop and multi-table, neutron as controller devide tables in BR-TUN as bellow. Notice, BR-TUN act as tunnel gateway, so do not need to process L2 local flow.
+<ul>
+    <li>table 0: entry table of flow, used for devide flow by in_port, which devide flow by source, as flow comes from VM or network node. Controller have all config of network map, so it knows what's network node port.</li>
+    <li>table 1, DVR_PROCESS: enable and used for DVR mode.</li>
+    <li>table 2, PATCH_LV_TO_TUN: </li>
+    <li>table 3, GRE_TUN_TO_LV: </li>
+    <li>table 4, VXLAN_TUN_TO_LV: </li>
+    <li>table 5, DVR_NOT_LEARN: </li>
+    <li>table 10, LEARN_FROM_TUN: learn table for local VM's mac address of this vxlan network. Its flow is: "table=10,priority=1 actions=learn(table=20,hard_timeout=300,priority=1,NXM_OF_VLAN_TCI[0..11],NXM_OF_ETH_DST[]=NXM_OF_ETH_SRC[],load:0->NXM_OF_VLAN_TCI[],load:NXM_NX_TUN_ID[]->NXM_NX_TUN_ID[],output:NXM_OF_IN_PORT[]),output:1"</li>
+    <li>table 20, UCAST_TO_TUN: this is learned flow from table 10, notice here is GRE mode. Its flow is: "table=20, priority=2,dl_vlan=1,dl_dst=fa:16:3e:7e:ab:cc actions=strip_vlan,set_tunnel:0x3e9,output:5", that is if vlan==1 and dst_mac==fa:16:3e:7e:ab:cc, then set tunnel id and output to 5, it's same as vxlan network, network port will learn remote mac address of remote VM.</li>
+    <li>table 21, ARP_RESPONDER: </li>
+    <li>table 22, FLOOD_TO_TUN: used to proccess BUM flow.</li>
+</ul>
+
+
+### ARP Responser?
+
+ARP Responser located in BR-TUN, which is ARP_RESPONSER table.
