@@ -1,0 +1,12 @@
+// This is used in ofp-util.c to define new actions extend.
+// It's not good idea to extend new action in openflow header.
+
+#ifdef XXXX
+#ifndef XXXX_ACTION
+#define XXXX_ACTION(ENUM, STRUCT, EXTENSIBLE, NAME)
+#endif
+XXXX_ACTION(XXXX_PUSH_L2MPLS,     xx_action_push_l2mpls,  0, "push_l2mpls")
+XXXX_ACTION(XXXX_POP_L2MPLS,      xx_action_pop_l2mpls,   0, "pop_l2mpls")
+XXXX_ACTION(XXXX_EGRESS_METER,    xx_action_egress_meter, 0, "egress_meter")
+#undef XXXX_ACTION
+#endif
