@@ -21,3 +21,11 @@ Like <1> said, developer call init of application.py, and register url maps and 
 Then WSGI server start thread pool to listen at PORT, if request comes, new thread will be create to process. After basic process of HTTP message parse, then use WSGI interface to notice application.
 
 Application get the request by processor, then deliver request to handler class, then handler class will process this, GET or POST or etc.
+
+So there are several layers:
+<ur>
+    <li>network layer: httpserver.py, based on SimpleHTTPServer and BaseHTTPServer. When socket connection comes from /wsgiserver folder, this is to dispatch connection into /static folder or upper.</li>
+    <li>network layer: /wsgiserver folder, thread pool is here. When socket connection comes, here create thread and process this socket, use wsgi_app talk to httpserver.py . So this layer response for socket layer work, act as server.</li>
+    <li>middleware: wsgi.py, response for select SGI/WSGI/etc mode when start up.</li>
+    <li>application: application.py, this is to dispatch request by URL mapping. webapi.py, session.py, form.py, template.py, db.py is all util of application.py .</li>
+</ur>
