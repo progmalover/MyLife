@@ -19,18 +19,13 @@ Kernel Space:                                   |                       |       
                                                 |                       |       |
 @SKB packet_in                                  |                       |       |
         |                                       |                       |       |
-        |                                       |                       |       |
 @FUNC ovs_vport_receive                 @FUNC genlmsg_unicast           |       |
         |                                       |                       |       |
-        |                                       |                       |       |
 @FUNC ovs_dp_process_receive_packet     @FUNC queue_userspace_packet    |       |
-        |                                       |                       |       |
         |                               N       |                       |       |
 @FUNC ovs_flow_tbl_lookup ---- match? ---- @FUNC ovs_dp_upcall          |       |
         |                       | Y                                     |       |
-        |                       |                                       |       |
         |           @FUNC ovs_excute_actions <-- @FUNC ovs_packet_cmd_excute    |
-        |                       |                                               |
         |                       |                                               |
         |                  -------------        @FUNC ovs_flow_cmd_new_or_set ---
         |                  |output     |                        |

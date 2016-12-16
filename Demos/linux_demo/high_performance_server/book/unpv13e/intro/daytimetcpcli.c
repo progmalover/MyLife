@@ -42,6 +42,8 @@ main(int argc, char **argv)
     // use sockfd as file handler.
     // recvline point to buffer, MAXLINE is max size of this buffer.
 	while ( (n = read(sockfd, recvline, MAXLINE)) > 0) {
+        // null terminate is neccessary, as there is no recvline buffer length
+        // in fputs function.
 		recvline[n] = 0;	/* null terminate */
 		if (fputs(recvline, stdout) == EOF)
 			err_sys("fputs error");
