@@ -10,5 +10,8 @@ IP System(Iptables, route, tc)
 Net Device(port, vport, tunnel port, etc)
 
 
+### How to use?
 
+For user space app, if you treat kernel as datapath, important is: net device operate; UC route, MC route, multi-instance rout, NAT route; iptables; tc.
 
+For socket app, important is cs demo and socket opt.
