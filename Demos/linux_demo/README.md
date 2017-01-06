@@ -7,6 +7,7 @@
 5. http://linux-ip.net/
 6. TCPIP详解
 7. http://netfilter.org/projects/iptables/index.html
+8. https://www.kernel.org/doc/man-pages/
 
 
 ### What /usr/include and /usr/local/include contains?
@@ -63,6 +64,8 @@ First we talk about command tools, refer to <5> for iproute2 command suite. Ther
 </ul>
 
 Then we discuss TCPIP stack, thay are: 1) init chain; 2) config system; 3) packet flow in L2/L3/L4. For packet flow, thay are: interface layer refer to <6>; iptables module refer to <7>; ip layer refer to <6>; tcp/dup layer refer to <6>; socket layer refer to <6>; tc module refer to <5>.
+
+Others refer to DATAPATH.md .
 
 
 ### difference between `ip route` and route NAT?

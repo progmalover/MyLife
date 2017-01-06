@@ -1,6 +1,79 @@
-/**
-*   This is used for blog titled with "OVS转发面分析"
-*/
+// Reference:
+// 1. http://man7.org/linux/man-pages/man7/rtnetlink.7.html
+// 2, route netlink(RTN): http://lxr.free-electrons.com/source/include/linux/netlink.h
+// 3. netlink(NET): http://man7.org/linux/man-pages/man7/netlink.7.html
+
+// Types of netlink: NETLINK_XXX(<2>),
+// Two side of netklink process: one is in user space for send/recv netlink message;
+// the other one is kernel side for register netlink.
+
+// This is user space for send/recv netlink message.
+#include <asm/types.h>
+#include <sys/socket.h>
+#include <linux/netlink.h>
+
+void
+netlink_create_socket(void)
+{
+    struct sockaddr_nl sa;
+
+    memset(&sa, 0, sizeof(sa));
+    sa.nl_family = AF_NETLINK;
+    sa.nl_groups = RTMGRP_LINK | RTMGRP_IPV4_IFADDR;
+
+    fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+    bind(fd, (struct sockaddr *) &sa, sizeof(sa));
+}
+
+void
+netlink_send(void)
+{
+    struct nlmsghdr *nh;    /* The nlmsghdr with payload to send */
+    struct sockaddr_nl sa;
+    struct iovec iov = { nh, nh->nlmsg_len };
+    struct msghdr msg;
+
+    msg = { &sa, sizeof(sa), &iov, 1, NULL, 0, 0 };
+    memset(&sa, 0, sizeof(sa));
+    sa.nl_family = AF_NETLINK;
+    nh->nlmsg_pid = 0;
+    nh->nlmsg_seq = ++sequence_number;
+    /* Request an ack from kernel by setting NLM_F_ACK */
+    nh->nlmsg_flags |= NLM_F_ACK;
+
+    sendmsg(fd, &msg, 0);
+}
+
+void
+netlink_recv(void)
+{
+    int len;
+    char buf[4096];
+    struct iovec iov = { buf, sizeof(buf) };
+    struct sockaddr_nl sa;
+    struct msghdr msg;
+    struct nlmsghdr *nh;
+
+    msg = { &sa, sizeof(sa), &iov, 1, NULL, 0, 0 };
+    len = recvmsg(fd, &msg, 0);
+
+    for (nh = (struct nlmsghdr *) buf; NLMSG_OK (nh, len);
+        nh = NLMSG_NEXT (nh, len)) {
+       /* The end of multipart message */
+       if (nh->nlmsg_type == NLMSG_DONE)
+           return;
+
+       if (nh->nlmsg_type == NLMSG_ERROR)
+           /* Do some error handling */
+       ...
+
+       /* Continue with parsing payload */
+       ...
+    }
+}
+
+// This is used for blog titled with "OVS转发面分析".
+// This is code in kernel side for register netlink fuinction.
 
 // User side code
 // define family

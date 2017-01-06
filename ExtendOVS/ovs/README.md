@@ -68,3 +68,13 @@ To setting it, use `ovs-vsctl add-br -- set type=normal` is OK. Differents betwe
 I have commit a PATCH to OVS2.3.0, titled with "ofp-util: Avoid use-after-free error in ofputil_append_meter_config().", 34965317@qq.com.
 
 As ofpbuf_put_uninit will realloc memory when _alloc_memory is not enough, so return pointer will be change.
+
+
+### Special action excuted?
+
+F.E. lldp. Refer to lldp.c, ofproto-dpif-xlate.c.
+
+
+### Forward thread for packet from/to datapath(chipset)?
+
+Refer forward.c .

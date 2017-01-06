@@ -3,6 +3,7 @@
 1. http://man.chinaunix.net/network/iptables-tutorial-cn-1.1.19.html
 2. http://www.groad.net/bbs/thread-7091-1-1.html
 3. http://conntrack-tools.netfilter.org/manual.html
+4. http://linux-ip.net/pages/diagrams.html
 
 
 ### Introduce?
@@ -13,6 +14,8 @@ Netfilter is ip system hook point, which is hook point around route table. Iptab
 1) PREROUTING/(mangle -- nat) -- routing -- FORWARD/(mangle -- filter) -- routing -- POSTROUTING/(mangle -- nat)
 2) PREROUTING/(mangle -- nat) -- routing -- INPUT/(mangle -- filter) -- local process -- routing -- OUTPUT/(mangle -- nat -- filter) -- POSTROUTING/(mangle -- nat)
 
+Beter Diagram, Refer <4>
+
                                XXXXXXXXXXXXXXXXXX
                              XXX     Network    XXX
                                XXXXXXXXXXXXXXXXXX
@@ -20,7 +23,7 @@ Netfilter is ip system hook point, which is hook point around route table. Iptab
                                        |
                                        v
  +-------------+              +------------------+
- |table: m -> f| <---+        | table: m -> n    |
+ |table: m -> f| <---+        | table: c -> m -> n
  |chain: INPUT |     |        | chain: PREROUTING|
  +-----+-------+     |        +--------+---------+
        |             |                 |
@@ -32,15 +35,15 @@ Netfilter is ip system hook point, which is hook point around route table. Iptab
 Routing decision                                                  |
 ****************                                                  |
        |                                                          |
-       v                        ****************                  |
-+-------------+       +------>  Routing decision  <---------------+
-|table: m -> n|       |         ****************
-|chain: OUTPUT|       |               +
-+-----+-------+       |               |
-      |               |               v
-      v               |      +-------------------+
-+--------------+      |      | table: m -> n     |
-|table: filter | +----+      | chain: POSTROUTING|
+       v                                                          |
++-------------+                                                   |
+|table: c->m->n                                                   |
+|chain: OUTPUT|                                                   |
++-----+-------+                                                   |
+      |                                                           |
+      v                      +-------------------+                |
++--------------+             | table: m -> n     |                |
+|table: filter | +---------> | chain: POSTROUTING| <--------------|
 |chain: OUTPUT |             +--------+----------+
 +--------------+                      |
                                       v
@@ -60,6 +63,8 @@ Connection tracking:  it's a module to track flow using <SIP, DIP, SPORT, DPORT>
 For example, packet<sip-A, dip-B, sp-C, dp-D> from local app to net device will be NEW state in OUTPUT chain. Then packet<sip-B, dip-A, sp-D, dp-C> from net device to local app or forward will be ESTABLISHED state. These track history could be recorded and state by `conntrack -L` refer to <2> <3>.
 
 <1> shows NEW/ESTABLISHED/RELATED/INVALID state.
+
+<4> and above show contrack module is located in OUTPUT/PREROUTING chain, this is entry of a new flow. Notice!!! New flow need to be conntrack, so conntrack located the entry of new flow!!!
 
 
 ### How to construct rules?
