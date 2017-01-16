@@ -1,8 +1,27 @@
 //: innerclasses/Callbacks.java
 // Using inner classes for callbacks
+//
+// Enclosure is important, just like C/C++ callback function.
+//
+// Caller is the way we use callback in Java, just like C,
+// Caller use 'go' function to kickoff callback pointer,
+// then Caller.go use callbackReference's increment function,
+// this callbackReference and its increment function could be
+// implement by Callee1 or Callee2.
+// So Callee1 and Callee2 is callback class, and its increment
+// function is callback function.
+//
+// Callee1 did not use inner class.
+// Callee2 is another one, use inner class.
+//
+// Different between Callee1 and Callee2 is public/private
+// of increment function. Callee2 use enclosure to explose
+// only one function 'getCallbackReference', Callee1 must
+// explose 'increment'.
 package innerclasses;
 import static net.mindview.util.Print.*;
 
+// This is callback interface, in Java, called enclosure.
 interface Incrementable {
   void increment();
 }
@@ -14,12 +33,12 @@ class Callee1 implements Incrementable {
     i++;
     print(i);
   }
-}	
+}
 
 class MyIncrement {
   public void increment() { print("Other operation"); }
   static void f(MyIncrement mi) { mi.increment(); }
-}	
+}
 
 // If your class must implement increment() in
 // some other way, you must use an inner class:
@@ -40,7 +59,7 @@ class Callee2 extends MyIncrement {
   Incrementable getCallbackReference() {
     return new Closure();
   }
-}	
+}
 
 class Caller {
   private Incrementable callbackReference;
@@ -59,7 +78,7 @@ public class Callbacks {
     caller1.go();
     caller2.go();
     caller2.go();
-  }	
+  }
 } /* Output:
 Other operation
 1
