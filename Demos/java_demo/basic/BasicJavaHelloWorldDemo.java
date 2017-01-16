@@ -8,11 +8,32 @@
 *   Demo.class in this folder, it seems that `javac` has no option, same
 *   as `-o` option of `g++`.
 */
+package BasicJavaHelloWorldDemo;
 
 import java.io.OutputStream;
+
+class AccessControl {
+    private void private_function() {
+        System.out.println("This is private function.");
+    }
+
+    void also_public_function() {
+        System.out.println("This is also public function.");
+    }
+
+    public void public_function() {
+        System.out.println("This is public function.");
+        this.private_function();
+    }
+}
 
 class Demo1 {
     public static void main (String args[]) {
         System.out.println("Demo1");
+
+        AccessControl ac = new AccessControl();
+        //ac.private_function(); // compile error
+        ac.also_public_function();
+        ac.public_function();
     }
 }
