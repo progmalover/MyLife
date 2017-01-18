@@ -1,6 +1,8 @@
 //: containers/MapPerformance.java
 // Demonstrates performance differences in Maps.
 // {Args: 100 5000} Small to keep build testing short
+//
+// Use HashMap first.
 import java.util.*;
 
 public class MapPerformance {

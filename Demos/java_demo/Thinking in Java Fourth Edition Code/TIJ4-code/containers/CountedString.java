@@ -4,6 +4,8 @@ import java.util.*;
 import static net.mindview.util.Print.*;
 
 public class CountedString {
+  // To prevent unknown type in 'created' ArrayList, we have to
+  // declare type specificly.
   private static List<String> created =
     new ArrayList<String>();
   private String s;

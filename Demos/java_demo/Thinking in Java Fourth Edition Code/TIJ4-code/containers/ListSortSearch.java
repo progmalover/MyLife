@@ -1,5 +1,11 @@
 //: containers/ListSortSearch.java
 // Sorting and searching Lists with Collections utilities.
+//
+// For code implemet, Collection.sort() == List.sort()
+// and Connlection.sort() == Set.sort()
+// as all sort() method is same code.
+//
+// But Map.sort() is not the same, refer to inherance map.
 import java.util.*;
 import static net.mindview.util.Print.*;
 

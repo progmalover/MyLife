@@ -1,5 +1,17 @@
 //: containers/Lists.java
 // Things you can do with Lists.
+//
+// Java Container is like python, 3 basic type:
+// List, Map, Set, Others are wapper of this.
+// Refer to <Thinking in Java 3> P423.
+//
+// Except Map, List, Set. Others are implement of these
+// Map, List, Set. So it's better to use these three.
+//
+// To use which kind of List, refer to ListPerformance.java
+//
+// Format of Container of Java is like C++
+// which is Container<Type> ct;.
 import java.util.*;
 import net.mindview.util.*;
 import static net.mindview.util.Print.*;

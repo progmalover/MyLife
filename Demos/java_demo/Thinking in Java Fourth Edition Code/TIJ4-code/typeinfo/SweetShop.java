@@ -1,5 +1,12 @@
 //: typeinfo/SweetShop.java
 // Examination of the way the class loader works.
+//
+// Class Object: this is code stored in .class files.
+// Like C++ RTTI need add additional code into object's
+// vtable, Java VM will load this Class Object Code when
+// class inited from .class files.
+//
+// Class.forName is static function of Class class.
 import static net.mindview.util.Print.*;
 
 class Candy {
@@ -15,7 +22,7 @@ class Cookie {
 }
 
 public class SweetShop {
-  public static void main(String[] args) {	
+  public static void main(String[] args) {
     print("inside main");
     new Candy();
     print("After creating Candy");
