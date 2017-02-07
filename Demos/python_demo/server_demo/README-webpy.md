@@ -29,3 +29,9 @@ So there are several layers:
     <li>middleware: wsgi.py, response for select SGI/WSGI/etc mode when start up.</li>
     <li>application: application.py, this is to dispatch request by URL mapping. webapi.py, session.py, form.py, template.py, db.py is all util of application.py .</li>
 </ur>
+
+
+### webpy code read?
+
+Refer to:
+https://github.com/batmancn/webpy.git    mylife-0.38

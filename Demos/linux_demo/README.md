@@ -8,6 +8,10 @@
 6. TCPIP详解
 7. http://netfilter.org/projects/iptables/index.html
 8. https://www.kernel.org/doc/man-pages/
+9. <linux kernel development>
+10. https://github.com/MintCN/linux-insides-zh.git
+11. <linux 内核源码剖析 TCPIP 实现>
+12. https://github.com/y123456yz/Reading-and-comprehense-linux-Kernel-network-protocol-stack.git
 
 
 ### What /usr/include and /usr/local/include contains?

@@ -114,9 +114,20 @@ not "yet" at the level of Posix.1g or X/Open XNS Issue 5.
   might generate warnings from your compiler, since you are printing
   a long without a corresponding long format specifier.
 
+
 Introduce
 ---------
 
 ./intro: basic socket demo.
 ./tcpcliserv: TCP client server demo.
 ./udpcliserv: UDP client server demo.
+
+
+IO API
+------
+
+API: read write fgets fputs readn writen.
+
+File IO API: fgets, fputs, fopen, fclose, fdopen, refer to ./lib/wrapstdio.c . These API is used for UDP send/recv.
+
+TCP/UDP SOCKET IO API: send/sendn, write/writen .

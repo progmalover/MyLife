@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+'''
+Reference:
+1. https://docs.python.org/2/library/functions.html
+'''
+
 # __call__ make class tobe callable:
 class Animal:
     def __init__(self, name):

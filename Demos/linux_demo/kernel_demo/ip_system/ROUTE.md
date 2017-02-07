@@ -39,7 +39,7 @@ Local table: broadcast route and local route.
 
 ### Routing process?
 
-f packet.routeCacheLookupKey in routeCache :
+if packet.routeCacheLookupKey in routeCache :
     route = routeCache[ packet.routeCacheLookupKey ]
 else
     for rule in rpdb :
@@ -47,3 +47,6 @@ else
             routeTable = rule[ lookupTable ]
             if packet.routeLookupKey in routeTable :
                 route = route_table[ packet.routeLookup_key ]
+
+
+### 

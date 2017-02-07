@@ -2,6 +2,7 @@
 
 1. http://blog.csdn.net/chenhuajie123/article/details/9202395
 2. http://ivory.idyll.org/articles/wsgi-intro/what-is-wsgi.html
+3. http://wsgi.tutorial.codepoint.net/
 
 
 ### Introduce?
@@ -22,7 +23,9 @@ thread use wsgi_app layer to talk to application which is run by app. The
 interface thay talk is WSGI.
 
 
-### Server, app, middleware?
+### Server, app, middleware in wsgi_server_1?
+
+Refer <2>.
 
 The PEP333 is the spec of WSGI, it specifies three role: server, application or
 application framwork, middleware.
@@ -66,9 +69,6 @@ def server_side_function():
     middleware = Middleware(simple_app)
     server(middleware) # call Middleware function
 
-
-### Construct WSGI using python scgiserver?
-
 Code like this:
 
 #!/usr/bin/env python
@@ -79,3 +79,8 @@ PRIFIX = ''
 PORT = 8888
 
 server_application(app, PRIFIX, PORT)
+
+
+### wsgi_server_2?
+
+Refer <3>.
