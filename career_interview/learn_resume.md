@@ -20,10 +20,12 @@ Have finish:
     -- OVS ofproto layer and flow table, nfv_sdn/extend_ovs/old_comments/ovs/.
 
 Learning:
-- OVS datapath and TCPIP/NFV kernel code programing:
+- OVS datapath:
     -- OVS datapath: https://github.com/batmancn/ovs, 2_3_comment. Important is kernel programing
 in OVS datapath.
-    -- iproute2 and its architecture, linux bridge, iptables. refer to <1>.
+- TCPIP/NFV kernel code programing:
+    -- iproute2 and its architecture.
+    -- QoS.
 - neutron code and development and intergration with ODL, https://github.com/batmancn/neutron.git,
  comment_mitaka.
     -- neutron server and develop
@@ -35,13 +37,18 @@ in OVS datapath.
     -- osgi
 
 For long term:
+- TCPIP/NFV kernel code programing:
+    -- TCP/UDP/SOCKET: Demos/linux_demo/kernel_demo/kernel_networking.md, and https:/github.com/batmancn/linux.git. Stage1 finish, know basic TCP and SOCKET.
+    -- Routing.
+    -- linux bridge.
+    -- iptables.
 - Java and ODL. This is neccessary. Controller, BGP etc.
-- kernel networking TCP and SOCKET, Demos/linux_demo/kernel_demo/kernel_networking.md, and https:/github.com/batmancn/linux.git. Stage1 finish, know basic TCP and SOCKET.
 - nginx/HTTP.
-- webrtc/JS.
 
-Consider to learn or not:
+Consider to learn or partial time work:
 - openstack tacker.
+- TensorFlow.
+- webrtc/JS.
 
 
 ### temp record like TBD in evenote?
