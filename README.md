@@ -21,11 +21,12 @@ Have finish:
 - C/C++ and STL(Demo/cpp_demo Demo/cpp_demo/stl), need re-learn sometime.
     -- cplusplus.com
 - python(Demo/python_demo/ server_demo web_demo), basic python and library:
-    -- web
-    -- server
-    -- oslo.config
+    -- web, server
+    -- Neutron: oslo.config, oslo.messaging, neutron.callbacks
     -- setuptool
     -- eventlet
+    -- Rabbit MQ: amqplib
+    -- json, argparse, subprocess, re, refer ovs_invd_demo.py.
 - OVS, need continue work on opensource discuss and patch:
     -- OVS datapath basic packet flow, nfv_sdn/extend_ovs/old_comments/datapath/README.md.
     -- OVS ofproto layer and flow table, nfv_sdn/extend_ovs/old_comments/ovs/.
@@ -46,7 +47,14 @@ Learning:
 
 For long term:
 - Java and ODL. This is neccessary. Controller, BGP etc.
-- nginx/HTTP.
+- kernel programing.
+- nginx/HTTP:
+    -- basic usage, like linux bridge, iptables.
+    -- http related module source code, important to learn http.
+    -- no need to read code like OVS.
+- python:
+    -- Rabbit MQ
+    -- neutron RPC summary
 - webrtc/JS.
 
 Consider to learn or not:
